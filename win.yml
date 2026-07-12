@@ -1,5 +1,5 @@
 ---
-- name: Copy file from SMB share
+- name: Copy host file
   hosts: windows
   gather_facts: no
 
