@@ -5,8 +5,8 @@
 
   tasks:
     - name: Write file
-      ansible.windows.win_shell: |
+      win_shell: |
         @"
         Hello from Semaphore.
-        File created using PowerShell EOF equivalent.
+        File created successfully.
         "@ | Out-File C:\Semaphore.txt -Encoding UTF8
