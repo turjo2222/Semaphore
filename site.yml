@@ -1,0 +1,12 @@
+---
+- name: Create Semaphore.txt using EOF
+  hosts: web_servers
+  become: yes
+
+  tasks:
+    - name: Create /var/www/Semaphore.txt
+      shell: |
+        cat <<EOF > /var/www/Semaphore.txt
+        This file was created by Ansible.
+        Welcome to Semaphore.
+        EOF
