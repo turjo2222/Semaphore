@@ -4,14 +4,18 @@
   gather_facts: false
   
   tasks:
-    - name: Create folder
+    - name: Create folder and verify
       win_shell: |
-        if (!(Test-Path "C:\temp\MyFolder")) {
-          New-Item -ItemType Directory -Path "C:\temp\MyFolder" -Force
+        $folder = "C:\temp\MyFolder"
+        if (!(Test-Path $folder)) {
+            New-Item -ItemType Directory -Path $folder -Force
+            Write-Host "CREATED"
+        } else {
+            Write-Host "EXISTS"
         }
-        Test-Path "C:\temp\MyFolder"
+        Test-Path $folder
       register: result
       
     - name: Display result
       debug:
-        msg: "Folder exists: {{ result.stdout }}"
+        var: result.stdout_lines
