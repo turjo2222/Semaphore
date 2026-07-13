@@ -4,16 +4,15 @@
   gather_facts: false
   
   tasks:
-    - name: Create batch script
-      raw: |
-        echo @echo off > C:\temp\create_folder.bat
-        echo if not exist "C:\temp\MyFolder" mkdir "C:\temp\MyFolder" >> C:\temp\create_folder.bat
-        echo if exist "C:\temp\MyFolder" echo SUCCESS >> C:\temp\create_folder.bat
+    - name: Create folder
+      win_command: powershell.exe -Command "New-Item -ItemType Directory -Path C:\temp\MyFolder -Force -ErrorAction SilentlyContinue"
+      register: create_result
+      failed_when: false
       
-    - name: Run batch script
-      raw: C:\temp\create_folder.bat
-      register: result
+    - name: Verify folder
+      win_command: powershell.exe -Command "Test-Path C:\temp\MyFolder"
+      register: verify_result
       
-    - name: Display result
+    - name: Show result
       debug:
-        msg: "Folder status: {{ result.stdout }}"
+        msg: "Folder exists: {{ verify_result.stdout }}"
