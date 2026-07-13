@@ -6,10 +6,18 @@
   tasks:
     - name: Create folder and verify
       raw: |
-        mkdir C:\temp\MyFolder 2>nul
-        if exist C:\temp\MyFolder (echo Folder exists) else (echo Folder creation failed)
+        powershell -Command "
+          $folder = 'C:\temp\MyFolder'
+          if (Test-Path $folder) {
+              Write-Host 'Folder already exists: ' $folder
+          } else {
+              New-Item -ItemType Directory -Path $folder -Force
+              Write-Host 'Folder created: ' $folder
+          }
+          Test-Path $folder
+        "
       register: result
       
-    - name: Show result
+    - name: Display result
       debug:
-        var: result.stdout_lines
+        var: result.stdout
