@@ -4,16 +4,26 @@
   gather_facts: false
   
   tasks:
-    - name: Create folder with PowerShell
-      raw: powershell.exe -Command "New-Item -ItemType Directory -Path C:\temp\MyFolder -Force"
+    - name: Create folder using PowerShell
+      raw: powershell.exe -Command "New-Item -ItemType Directory -Path C:\temp\MyFolder -Force | Out-Null; Write-Host 'Folder created or already exists'"
       register: create_result
       
-    - name: Check if folder exists
-      raw: powershell.exe -Command "Test-Path C:\temp\MyFolder"
-      register: check_result
+    - name: Verify folder exists using PowerShell
+      raw: powershell.exe -Command "if (Test-Path C:\temp\MyFolder) { Write-Host 'VERIFIED: Folder exists' } else { Write-Host 'ERROR: Folder does not exist' }"
+      register: verify_result
       
-    - name: Display results
+    - name: Display verification
       debug:
-        msg: 
-          - "Creation output: {{ create_result.stdout }}"
-          - "Folder exists: {{ check_result.stdout }}"
+        var: verify_result.stdout
+        
+    - name: Create test file
+      raw: powershell.exe -Command "'Created by Ansible' | Out-File -FilePath C:\temp\MyFolder\test.txt -Encoding UTF8"
+      register: file_result
+      
+    - name: Read test file
+      raw: powershell.exe -Command "Get-Content C:\temp\MyFolder\test.txt"
+      register: read_result
+      
+    - name: Show file content
+      debug:
+        var: read_result.stdout
