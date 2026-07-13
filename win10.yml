@@ -1,24 +1,22 @@
 ---
-- name: Windows configuration
+- name: Create folder on Windows
   hosts: 10.64.105.52
   gather_facts: false
-  
+
   tasks:
-    - name: Copy PowerShell script
-      raw: |
-        echo "$folder = 'C:\temp\MyFolder'" > C:\temp\create_folder.ps1
-        echo "if (!(Test-Path `$folder)) {" >> C:\temp\create_folder.ps1
-        echo "    New-Item -ItemType Directory -Path `$folder -Force" >> C:\temp\create_folder.ps1
-        echo "    Write-Host 'Folder created'" >> C:\temp\create_folder.ps1
-        echo "} else {" >> C:\temp\create_folder.ps1
-        echo "    Write-Host 'Folder already exists'" >> C:\temp\create_folder.ps1
-        echo "}" >> C:\temp\create_folder.ps1
-        echo "Test-Path `$folder" >> C:\temp\create_folder.ps1
-      
-    - name: Run PowerShell script
-      raw: powershell -ExecutionPolicy Bypass -File C:\temp\create_folder.ps1
+    - name: Create C:\temp\MyFolder
+      raw: >
+        powershell.exe -NoProfile -ExecutionPolicy Bypass -Command
+        "$folder='C:\temp\MyFolder';
+        if (!(Test-Path $folder)) {
+          New-Item -ItemType Directory -Path $folder -Force | Out-Null;
+          Write-Output 'Folder created'
+        } else {
+          Write-Output 'Folder already exists'
+        }"
+
       register: result
-      
-    - name: Show result
+
+    - name: Show output
       debug:
         var: result.stdout
