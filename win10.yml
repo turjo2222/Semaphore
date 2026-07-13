@@ -5,16 +5,17 @@
 
   tasks:
     - name: Create C:\temp directory
-      raw: powershell -Command "New-Item -ItemType Directory -Path 'C:\temp' -Force"
+      raw: New-Item -ItemType Directory -Path C:\temp -Force
 
     - name: Create MyFolder directory
-      raw: powershell -Command "New-Item -ItemType Directory -Path 'C:\temp\MyFolder' -Force"
+      raw: New-Item -ItemType Directory -Path C:\temp\MyFolder -Force
 
-    - name: Create test text file
-      raw: powershell -Command "Set-Content -Path 'C:\temp\MyFolder\test.txt' -Value 'Hello from Ansible'"
+    - name: Create test file
+      raw: Set-Content -Path C:\temp\MyFolder\test.txt -Value "Hello from Ansible"
 
-    - name: Verify file content
-      raw: powershell -Command "Get-Content 'C:\temp\MyFolder\test.txt'"
+    - name: Read file
+      raw: Get-Content C:\temp\MyFolder\test.txt
       register: result
 
-
+    - debug:
+        var: result.stdout
