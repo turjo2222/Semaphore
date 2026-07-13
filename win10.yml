@@ -1,6 +1,6 @@
 ---
 - name: Windows configuration
-  hosts: windows_hosts
+  hosts: windows_10
   gather_facts: false
   
   tasks:
