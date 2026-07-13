@@ -1,25 +1,21 @@
 ---
-- name: Copy and Run Avro Keyboard Installer
-  hosts: windows_10
+- name: Copy Avro installer to Windows 10.64.105.50
+  hosts: windows
   gather_facts: false
 
   tasks:
 
-    - name: Create installer folder
+    - name: Create temp folder
       raw: |
-        powershell.exe -NoProfile -Command "New-Item -ItemType Directory -Path 'C:\temp\installer' -Force"
+        powershell.exe -NoProfile -Command "New-Item -ItemType Directory -Path 'C:\temp' -Force"
 
-    - name: Copy Avro installer from network share
+    - name: Copy file from network share
       raw: |
-        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -Destination 'C:\temp\installer\setup_avrokeyboard_5.6.0.exe' -Force"
+        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -Destination 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
 
-    - name: Run Avro installer
+    - name: Verify file copied
       raw: |
-        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\installer\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
-
-    - name: Check installer copied
-      raw: |
-        powershell.exe -NoProfile -Command "Test-Path 'C:\temp\installer\setup_avrokeyboard_5.6.0.exe'"
+        powershell.exe -NoProfile -Command "Test-Path 'C:\temp\setup_avrokeyboard_5.6.0.exe'"
       register: result
 
     - name: Show result
