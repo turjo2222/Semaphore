@@ -1,6 +1,6 @@
 ---
-- name: Copy Avro installer to Windows 10.64.105.50
-  hosts: windows_10
+- name: Copy Avro installer
+  hosts: windows
   gather_facts: false
 
   tasks:
@@ -9,15 +9,19 @@
       raw: |
         powershell.exe -NoProfile -Command "New-Item -ItemType Directory -Path 'C:\temp' -Force"
 
-    - name: Copy file from network share
+    - name: Connect to share
+      raw: |
+        net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
+
+    - name: Check source file
+      raw: |
+        powershell.exe -NoProfile -Command "Test-Path '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe'"
+      register: check
+
+    - name: Show check
+      debug:
+        var: check.stdout
+
+    - name: Copy file
       raw: |
         powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -Destination 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
-
-    - name: Verify file copied
-      raw: |
-        powershell.exe -NoProfile -Command "Test-Path 'C:\temp\setup_avrokeyboard_5.6.0.exe'"
-      register: result
-
-    - name: Show result
-      debug:
-        var: result.stdout
