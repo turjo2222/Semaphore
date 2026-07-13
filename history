@@ -1,0 +1,1048 @@
+  11          proxy_set_header X-Real-IP \$remote_addr;
+   12          proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+   13          proxy_set_header X-Forwarded-Proto \$scheme;
+   14      }
+   15  }" > /etc/nginx/conf.d/apex.conf'
+   16  sudo nginx -t
+   17  sudo systemctl reload nginx
+   18  cp /etc/nginx/conf.d/apex.conf /etc/nginx/conf.d/apex.conf.bak2
+   19  cat apex.conf.bak1 > apex.conf
+   20  sudo nginx -t
+   21  sudo systemctl reload nginx
+   22  sudo bash -c 'echo "server {
+   23      listen 80;
+   24      server_name 10.64.113.5;
+   25      location / {
+   26          proxy_pass http://10.64.113.5:8889;
+   27          proxy_set_header Host \$host;
+   28          proxy_set_header X-Real-IP \$remote_addr;
+   29          proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+   30          proxy_set_header X-Forwarded-Proto \$scheme;
+   31      }
+   32      location = / {
+   33          return 302 /ords/r/mrd/mrd/login;
+   34      }
+   35  }" > /etc/nginx/conf.d/apex.conf'
+   36  sudo systemctl reload nginx
+   37  exit
+   38  sudo dnf install -y certbot python3-certbot-nginx
+   39  sudo certbot --nginx -d 10.64.113.5
+   40  sudo setsebool -P httpd_can_network_connect 1sudo setsebool -P httpd_can_network_connect 1
+   41  sudo setsebool -P httpd_can_network_connect 1
+   42  cd /u02/mostafa
+   43  ll
+   44  cd H123546987/
+   45  ll
+   46  cd A123546987/
+   47  ll
+   48  cd ..
+   49  ll
+   50  cd ..
+   51  ll
+   52  cd H123456789/
+   53  ll
+   54  cd DA232323232/
+   55  ll
+   56  cd ..
+   57  ll
+   58  cd ..
+   59  ll
+   60  cd mostafa/
+   61  ll
+   62  su - oracle
+   63  su - oracle
+   64  vim /etc/nginx/conf.d/apex.conf
+   65  sudo nginx -t
+   66  sudo systemctl reload nginx
+   67  vim /etc/nginx/conf.d/apex.conf
+   68  sudo systemctl reload nginx
+   69  vim /etc/nginx/conf.d/apex.conf
+   70  sudo systemctl reload nginx
+   71  vim /etc/nginx/conf.d/apex.conf
+   72  sudo systemctl reload nginx
+   73  lastb
+   74  lasta
+   75  last a
+   76  last
+   77  lastb
+   78  su - oracle
+   79  sudo timedatectl set-ntp true
+   80  cd /u02/mostafa/
+   81  ll
+   82  cd H12604633843
+   83  ll
+   84  cd A2603107242
+   85  ll
+   86  cd ..
+   87  ll
+   88  cd A2603107112
+   89  ll
+   90  pwd
+   91  cd H12604633844/A2603107177/Invenstigation
+   92  cd ..
+   93  cd /H12604633844/A2603107177/Invenstigation
+   94  cd ll
+   95  cd /u02/mostafa/H12604633844/A2603107177/Invenstigation
+   96  ll
+   97  cd ..
+   98  ll
+   99  cd ..
+  100  ll
+  101  cd ..
+  102  ll
+  103  cd H12604633844
+  104  ll
+  105  cd A2603107177/
+  106  ll
+  107  cd /u02/mostafa/H12604633843/A2603107112/death
+  108  cd /u02
+  109  ll
+  110  cd mostafa/
+  111  ll
+  112  cd H12604633843
+  113  cd A2603107112
+  114  ll
+  115  cd Death/
+  116  ll
+  117  su - oracle
+  118  reboot
+  119  java -jar /u01/ords/ords.war serve --config /u01/ords/config
+  120  su - oracle
+  121  reboot
+  122  cd /u01/ords
+  123  $ORDS_HOME/bin/ords --config $ORDS_CONFIG serve
+  124  $CATALINA_HOME/bin/shutdown.sh
+  125  $CATALINA_HOME/bin/startup.sh
+  126  su - oracle
+  127  vim /u01/ords/config/databases/default/pool.xml
+  128  sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+  129  sudo dnf install -y postgresql15-server postgresql15
+  130  sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+  131  sudo dnf -qy module disable postgresql
+  132  sudo dnf install -y postgresql18-server postgresql18
+  133  sudo /usr/pgsql-18/bin/postgresql-18-setup initdb
+  134  sudo systemctl enable --now postgresql-18
+  135  psql --version
+  136  rpm -Uvh https://repo.zabbix.com/zabbix/7.4/release/oracle/8/noarch/zabbix-release-latest-7.4.el8.noarch.rpm
+  137  dnf clean all
+  138  php -v
+  139  dnf module switch-to php:8.2
+  140  dnf install zabbix-server-pgsql zabbix-web-pgsql zabbix-nginx-conf zabbix-sql-scripts zabbix-selinux-policy zabbix-agent
+  141  sudo -u postgres createuser --pwprompt zabbix
+  142  sudo -u postgres createdb -O zabbix zabbix
+  143  zcat /usr/share/zabbix-sql-scripts/postgresql/server.sql.gz | sudo -u zabbix psql zabbix
+  144  find /usr -name "server.sql.gz" 2>/dev/null
+  145  zcat /usr/share/zabbix/zabbix-sql-scripts/postgresql/server.sql.gz | sudo -u zabbix psql zabbix
+  146  zcat /usr/share/zabbix/sql-scripts/postgresql/server.sql.gz | sudo -u zabbix psql zabbix
+  147  vim /etc/zabbix/zabbix_server.conf
+  148  /etc/nginx/conf.vim d/zabbix.conf
+  149  vim /etc/nginx/conf.d/zabbix.conf
+  150  systemctl restart zabbix-server zabbix-agent nginx php-fpm
+  151  systemctl enable zabbix-server zabbix-agent nginx php-fpm
+  152  sudo vi /etc/zabbix/zabbix_server.conf
+  153  sudo vim /etc/zabbix/zabbix_server.conf
+  154  sudo systemctl restart zabbix-server
+  155  history
+  156  ps -ef | grep zabbix_server
+  157  sudo visudo
+  158  vim visudo
+  159  sudo visudo
+  160  sudo -u zabbix sudo /usr/bin/hostnamectl
+  161  sudo visudo
+  162  sudo -u zabbix sudo /usr/bin/hostnamectl
+  163  sudo -u zabbix sudo /usr/sbin/dmidecode
+  164  sudo tail -f /var/log/zabbix/zabbix_agentd.log
+  165  sudo tail -f /var/log/zabbix/zabbix_agent2.log
+  166  systemctl status zabbix-agent2
+  167  systemctl status zabbix-agent
+  168  grep LogFile /etc/zabbix/zabbix_agentd.conf
+  169  sudo systemctl restart zabbix-server
+  170  which traceroute
+  171  dnf install -y traceroute
+  172  which traceroute
+  173  yum install oracle-instantclient-basic
+  174  yum install oracle-instantclient-odbc
+  175  dnf install oracle-instantclient-release-el8
+  176  dnf install oracle-instantclient-basic
+  177  dnf install oracle-instantclient-odbc
+  178  dnf install unixODBC unixODBC-devel
+  179  dnf install oracle-instantclient-basic oracle-instantclient-odbc
+  180  dnf install oracle-instantclient-release-el8
+  181  dnf install oracle-instantclient-basic oracle-instantclient-odbc
+  182  dnf install oracle-instantclient-release-el8
+  183  dnf install oracle-instantclient-basic oracle-instantclient-odbc
+  184  dnf install unixODBC unixODBC-devel
+  185  odbcinst -q -d
+  186  rpm -qa | grep instantclient
+  187  find /usr -name "libsqora.so*" 2>/dev/null
+  188  cat /etc/odbcinst.ini
+  189  vim /etc/odbcinst.ini
+  190  echo "[Oracle 21 ODBC driver]
+  191  Description=Oracle ODBC Driver 21c
+  192  Driver=/usr/lib/oracle/21/client64/lib/libsqora.so.21.1
+  193  FileUsage=1" >> /etc/odbcinst.ini
+  194  vim /etc/odbcinst.ini
+  195  cat /etc/odbcinst.ini
+  196  odbcinst -q -d
+  197  ls -l /usr/lib/oracle/21/client64/lib/libsqora.so.21.1
+  198  vim /etc/odbc.ini
+  199  isql ORCLPDB ZABBIX "Zabbix@123*#"
+  200  vim /etc/zabbix/zabbix_server.conf
+  201  systemctl restart zabbix-server
+  202  systemctl restart zabbix-agent
+  203  isql -v ORCLPDB ZABBIX "Zabbix@123*#"
+  204  zabbix_server -R odbc_check
+  205  tail -f /var/log/zabbix/zabbix_server.log
+  206  zabbix_server -R config_cache_reload
+  207  systemctl restart zabbix-server
+  208  isql -v ORCLPDB ZABBIX "Zabbix@123*#"
+  209  nc -zv 10.64.120.120 1521
+  210  zabbix_server -V
+  211  sudo -u zabbix isql ORCLPDB ZABBIX "Zabbix@123*#"
+  212  grep -i odbc /var/log/zabbix/zabbix_server.log
+  213  tail -100 /var/log/zabbix/zabbix_server.log
+  214  odbcinst -q -d
+  215  cat /etc/odbc.ini
+  216  isql ORCLPDB ZABBIX "Zabbix@123*#"
+  217  sudo -u zabbix isql ORCLPDB ZABBIX "Zabbix@123*#"
+  218  tail -f /var/log/zabbix/zabbix_server.log
+  219  tail -100 /var/log/zabbix/zabbix_server.log
+  220  grep -i odbc /var/log/zabbix/zabbix_server.log
+  221  sudo -u zabbix isql ORCLPDB ZABBIX "Zabbix@123*#"
+  222  cat /etc/odbc.ini
+  223  vim /etc/odbcinst.ini
+  224  vim /etc/odbc.ini
+  225  isql ORCLPDB ZABBIX "Zabbix@123*#"
+  226  sqlplus ZABBIX/"Zabbix@123*#"@//10.64.120.120:1521/ORCLPDB
+  227  su - oracle
+  228  vim /etc/odbc.ini
+  229  sudo -u zabbix isql ORCLPDB ZABBIX "Zabbix@123*#"
+  230  cd /usr/share/zabbix/images/general/
+  231  cd /usr/share/zabbix/
+  232  ll
+  233  snmpwalk -v2c -c mostafa@ict1 10.64.113.40 1.3.6.1.2.1.1
+  234  sudo visudo
+  235  sudo -u zabbix sudo dmidecode
+  236  uname -s
+  237  cat /etc/os-release
+  238  hostnamectl
+  239  cat /etc/os-release
+  240  sudo -n command
+  241  sudo -n dmidecode
+  242  sudo -u zabbix bash -x script.sh
+  243  ls -l script.sh
+  244  find / -name script.sh 2>/dev/null
+  245  ls - a /usr/lib/tuned/powersave/script.sh
+  246  ls -a /usr/lib/tuned/powersave/script.sh
+  247  ll /usr/lib/tuned/powersave/script.sh
+  248  chmod 755 /usr/lib/tuned/powersave/script.sh
+  249  ll /usr/lib/tuned/powersave/script.sh
+  250  sudo -u zabbix bash -x /usr/lib/tuned/powersave/script.sh
+  251  grep ^ExternalScripts /etc/zabbix/zabbix_server.conf
+  252  sudo -u zabbix bash -x script.sh
+  253  cp /usr/lib/tuned/powersave/script.sh /tmp/
+  254  chmod 755 /tmp/script.sh
+  255  sudo -u zabbix bash -x /tmp/script.sh
+  256  id zabbix
+  257  sudo -u zabbix sudo -n /usr/sbin/dmidecode
+  258  sudo -u zabbix bash -x /tmp/script.sh
+  259  sudo systemctl restart zabbix-server
+  260  grep -n "sudo" /tmp/script.sh
+  261  vim /tmp/script.sh
+  262  grep -R "sudo" /etc/zabbix /usr/lib/zabbix 2>/dev/null
+  263  bash -x script.sh
+  264  find / -name "script.sh" 2>/dev/null
+  265  bash -x /usr/lib/tuned/powersave/script.sh
+  266  snmpwalk -v2c -c public 10.10.2.74 1.3.6.1.2.1.1
+  267  snmpget -v2c -c 'public@ict88547$!' 10.10.2.74 1.3.6.1.2.1.1.1.0
+  268  snmpwalk -v2c -c 'public@ict88547$!' 10.10.2.74
+  269  snmpwalk -v2c -c 'public@ict88547$!' 10.10.2.74 .1
+  270  snmpwalk -v2c -c 'public@ict88547$!' 10.10.2.74 1.3.6.1
+  271  snmpwalk -v2c -c public 10.10.2.74
+  272  snmpwalk -v2c -c public 10.10.2.74 1.3.6.1.2.1.1.1.0
+  273  snmpwalk -v2c -c public 10.10.2.74 1.3.6.1.2.1.1.3.0
+  274  snmpwalk -v2c -c public 10.10.2.74 1.3.6.1.2.1
+  275  snmpwalk -v2c -c public 10.10.2.74
+  276  snmpwalk -v2c -c public 10.10.2.74 1.3.6.1.4.1
+  277  snmpwalk -v2c -c public 10.10.2.74 1.3.6.1.4.1.39165.1.1.0
+  278  snmpwalk -v2c -c public 10.10.2.74 1.3.6.1.4.1.39165
+  279  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.39165
+  280  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1
+  281  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.50001
+  282  snmpwalk -v2c -c private 10.10.2.100 1.3.6.1.4.1.50001
+  283  snmpwalk -v2c -c private 10.10.2.100 1.3.6.1.4.1
+  284  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1
+  285  snmpwalk -v2c -c private 10.10.2.100 1.3.6.1.4.1
+  286  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1
+  287  snmpwalk -v2c -c public 10.10.2.74 1.3.6.1.4.1.39165
+  288  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.50001.1.241.1.5.1.0
+  289  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1 | grep -i -E "disk|hdd|storage|space|capacity"
+  290  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.50001.1.241.1.5.1.0
+  291  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.50001.1.241.1.5.2.0
+  292  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.50001.1.241.1.5.1.0
+  293  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.50001.1.241.1.5.2.0
+  294  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.50001.1.241.1.5.1.0
+  295  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.5000
+  296  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.50001
+  297  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.50001.1.241.1.5.2.0
+  298  snmpwalk -v2c -c public 10.10.2.100
+  299  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.50001.1.241.1.3
+  300  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.50001.1.240
+  301  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.50001.1.200
+  302  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.50001.1.241.1.3
+  303  snmpwalk -v2c -c public 10.10.2.100 1.3.6.1.4.1.50001.1.102
+  304  Start-Service SNMP
+  305  sudo find /usr/share/zabbix -name "*logo*"
+  306  find /usr/share/zabbix/ui -type f \( -name "*.svg" -o -name "*.png" \) | grep -i zabbix
+  307  find /usr/share/zabbix/ui -name "brand.conf.php"
+  308  mkdir -p /usr/share/zabbix/ui/local/conf
+  309  mkdir -p /usr/share/zabbix/ui/local/logo
+  310  cp /usr/share/zabbix/ui/local/conf/brand.conf.php.org /usr/share/zabbix/ui/local/conf/brand.conf.php
+  311  cp /usr/share/zabbix/ui/local/conf/brand.conf.php /usr/share/zabbix/ui/local/conf/brand.conf.php.org
+  312  vi /usr/share/zabbix/ui/local/conf/brand.conf.php
+  313  vim /usr/share/zabbix/ui/local/conf/brand.conf.php
+  314  cat <<'EOF' > /usr/share/zabbix/ui/local/conf/brand.conf.php
+  315  <?php
+  316  return [
+  317      'BRAND_LOGO' => 'local/logo/BSH_LOGO.svg',
+  318      'BRAND_LOGO_SIDEBAR' => 'local/logo/BSH_LOGO.svg',
+  319      'BRAND_FOOTER' => 'BSH'
+  320  ];
+  321  EOF
+  322  vim /usr/share/zabbix/ui/local/conf/brand.conf.php
+  323  systemctl reload httpd
+  324  history
+  325  systemctl reload httpd
+  326  systemct restart zabbix
+  327  systemctl restart zabbix
+  328  systemctl restart zabbix-server
+  329  vim /usr/share/zabbix/ui/local/conf/brand.conf.php
+  330  systemctl restart zabbix-server
+  331  history
+  332  cat <<'EOF' > /usr/share/zabbix/ui/local/conf/brand.conf.php
+  333  <?php
+  334  return [
+  335      'BRAND_LOGO' => 'local/logo/BSH_LOGO.svg',
+  336      'BRAND_LOGO_SIDEBAR' => 'local/logo/BSH_LOGO.svg',
+  337      'BRAND_FOOTER' => 'BSH'
+  338  ];
+  339  EOF
+  340  systemctl restart zabbix-server
+  341  head -20 /usr/share/zabbix/ui/local/logo/BSH_LOGO.svg
+  342  vim /usr/share/zabbix/ui/local/conf/brand.conf.php
+  343  systemctl restart zabbix-server
+  344  vim /usr/share/zabbix/ui/local/conf/brand.conf.php
+  345  systemctl restart zabbix-server
+  346  vim /usr/share/zabbix/ui/local/conf/brand.conf.php
+  347  grep -R "BRAND_" /usr/share/zabbix/ui/include /usr/share/zabbix/ui/local -n
+  348  systemctl restart zabbix-server
+  349  systemctl restart php-fpm
+  350  cd /usr/share/zabbix/ui/assets/img/
+  351  ll
+  352  grep -R "<title>" /usr/share/zabbix/ui -n
+  353  vim /usr/share/zabbix/ui/include/views/general.browserwarning.php
+  354  ll
+  355  cp /usr/share/zabbix/ui/local/logo/BSH_Compact.png .
+  356  ll
+  357  mv apple-touch-icon-76x76-precomposed.png.org apple-touch-icon-76x76-precomposed.png
+  358  mv apple-touch-icon-76x76-precomposed.png apple-touch-icon-76x76-precomposed.png.org
+  359  ll
+  360  mv BSH_Compact.png apple-touch-icon-76x76-precomposed.png
+  361  ll
+  362  systemctl restart zabbix-server
+  363  vim /usr/share/zabbix/ui/local/conf/brand.conf.php
+  364  php artisan config:clear
+  365  php artisan cache:clear
+  366  sudo systemctl restart nginx php-fpm
+  367  zabbix_server --version
+  368  vim /usr/share/zabbix/ui/local/conf/brand.conf.php
+  369  sudo systemctl restart nginx php-fpm
+  370  systemctl restart zabbix-server
+  371  find /usr/share/zabbix/ui/app/views -iname '*login*'
+  372  grep -R "Zabbix" /usr/share/zabbix/ui/include /usr/share/zabbix/ui/app 2>/dev/null
+  373  grep -R "document.title" /usr/share/zabbix/ui 2>/dev/null
+  374  index.phpgrep -R "<title>" /usr/share/zabbix/ui 2>/dev/null
+  375  grep -R "<title>" /usr/share/zabbix/ui 2>/dev/null
+  376  grep -R "page_title" /usr/share/zabbix/ui 2>/dev/null
+  377  grep -R "Sign in" /usr/share/zabbix/ui/app
+  378  vim /usr/share/zabbix/ui/include/page_header.php
+  379  systemctl restart zabbix-server
+  380  grep -R "Sign in" /usr/share/zabbix/ui/app /usr/share/zabbix/ui/include 2>/dev/null
+  381  sudo systemctl restart nginx php-fpm
+  382  find /usr/share/zabbix/ui/app -type f | grep login
+  383  find /usr/share/zabbix/ui/app/controllers -iname "*login*"
+  384  grep -R "setPageTitle" /usr/share/zabbix/ui/app/controllers 2>/dev/null
+  385  vim /usr/share/zabbix/ui/include/page_header.php
+  386  vim /usr/share/zabbix/ui/app/controllers/CControllerIndexLogin.php
+  387  vim /usr/share/zabbix/ui/include/page_header.php
+  388  cat /usr/share/zabbix/ui/include/page_header.php
+  389  grep -R "\$page\['title'\]" /usr/share/zabbix/ui/app/controllers 2>/dev/null
+  390  grep -R "Sign in" /usr/share/zabbix/ui/app/controllers 2>/dev/null
+  391  vim /usr/share/zabbix/ui/app/controllers/CControllerIndex.php
+  392  find /usr/share/zabbix/ui/app/controllers -type f | grep -i index
+  393  vim /usr/share/zabbix/ui/index.php
+  394  vim /usr/share/zabbix/ui/app/views/general.login.php
+  395  vim /usr/share/zabbix/ui/index.php
+  396  cat /usr/share/zabbix/ui/index.php
+  397  vim /usr/share/zabbix/ui/index.php
+  398  vim /usr/share/zabbix/ui/local/conf/brand.conf.php
+  399  vim /usr/share/zabbix/ui/index.php
+  400  vim /usr/share/zabbix/ui/local/conf/brand.conf.php
+  401  systemctl restart zabbix-server
+  402  vim /usr/share/zabbix/ui/local/conf/brand.conf.php
+  403  systemctl restart zabbix-server
+  404  vim /usr/share/zabbix/ui/index.php
+  405  vim /usr/share/zabbix/ui/local/conf/brand.conf.php
+  406  systemctl restart zabbix-server
+  407  vim /usr/share/zabbix/ui/local/conf/brand.conf.php
+  408  systemctl restart zabbix-server
+  409  php -l /usr/share/zabbix/ui/local/conf/brand.conf.php
+  410  grep -R "favicon" /usr/share/zabbix/ui
+  411  systemctl restart zabbix-server
+  412  sudo systemctl restart nginx php-fpm
+  413  cd ~
+  414  php -i | grep -i opcache.enable
+  415  php -v
+  416  php -m | grep -i opcache
+  417  systemctl status php-fpm --no-pager
+  418  su - oracle
+  419  vim /usr/share/zabbix/ui/index.php
+  420  exit
+  421  vim /usr/share/zabbix/ui/local/conf/brand.conf.php
+  422  exit
+  423  systemctl get-default
+  424  sudo systemctl isolate multi-user.target
+  425  sudo systemctl set-default multi-user.target
+  426  systemctl get-default
+  427  ipconfig
+  428  ifconfig
+  429  reboot
+  430  dnf clean all
+  431  dnf install -y grafana
+  432  cat > /etc/yum.repos.d/grafana.repo <<EOF
+  433  [grafana]
+  434  name=Grafana OSS
+  435  baseurl=https://rpm.grafana.com
+  436  repo_gpgcheck=1
+  437  enabled=1
+  438  gpgcheck=1
+  439  gpgkey=https://rpm.grafana.com/gpg.key
+  440  sslverify=1
+  441  EOF
+  442  dnf clean all
+  443  dnf install -y grafana
+  444  grafana-server -v
+  445  systemctl daemon-reload
+  446  systemctl enable grafana-server
+  447  systemctl start grafana-server
+  448  systemctl status grafana-server
+  449  Verify listening port:
+  450  ss -tulpn | grep 3000
+  451  :q!
+  452  firewall-cmd --permanent --add-port=3000/tcp
+  453  firewall-cmd --reload
+  454  semanage port -a -t http_port_t -p tcp 3000
+  455  grafana-cli plugins install alexanderzobnin-zabbix-app
+  456  grafana cli --homepath /usr/share/grafana plugins install alexanderzobnin-zabbix-app
+  457  systemctl restart grafana-server
+  458  systemctl start grafana-server
+  459  systemctl status grafana-server
+  460  grafana-cli plugins ls
+  461  find /var/lib/grafana/plugins -maxdepth 1 -type d
+  462  cd /usr/share/grafana/public/img/
+  463  ll
+  464  cd licensing/
+  465  ll
+  466  systemctl restart grafana-server
+  467  cd /var/www/html/
+  468  ll
+  469  cd .
+  470  cd ~
+  471  grep -R "Welcome to Grafana" /usr/share/grafana/public/build/
+  472  clear
+  473  grep -R "Welcome to Grafana" /usr/share/grafana/public/build/
+  474  clear
+  475  grep -o "Welcome[^\"']*" /usr/share/grafana/public/build/welcomeBanner*.js
+  476  strings /usr/share/grafana/public/build/welcomeBanner*.js | grep -i "welcome"
+  477  vim /usr/share/grafana/public/build/welcomeBanner.5c1db04280547c11e886.js
+  478  systemctl restart grafana-server
+  479  clear
+  480  vim /usr/share/grafana/public/build/welcomeBanner-react19.d2096e4bb460ca167027.js
+  481  systemctl restart grafana-server
+  482  systemct restart nginx
+  483  systemctl restart nginx
+  484  grafana-server -v
+  485  grafana cli -v
+  486  grep -R "Welcome to Grafana" /usr/share/grafana/public/build/ | head -20
+  487  grep -R "login" /usr/share/grafana/public/build/*.js | grep -i "welcome"
+  488  grep -R "Welcome to Grafana" /usr/share/grafana/public/
+  489  vim /usr/share/grafana/public/app/core/components/Branding/Branding.tsx
+  490  systemctl restart grafana-server
+  491  clear
+  492  cd /usr/share/grafana/public/build
+  493  grep -R "Welcome to Grafana" .
+  494  ll
+  495  clear
+  496  grep -o "Welcome[^\"']*" /usr/share/grafana/public/build/welcomeBanner*.js
+  497  grep -o "Welcome[^\"']*" /usr/share/grafana/public/build/*.js
+  498  clear
+  499  vim /etc/grafana/grafana.ini
+  500  sudo systemctl restart grafana-server
+  501  vim /etc/grafana/grafana.ini
+  502  sudo systemctl restart grafana-server
+  503  vim /usr/share/grafana/public/build/7457.4455c81525be8fb26b46.js
+  504  sudo systemctl restart grafana-server
+  505  systemctl restart nginx
+  506  grep -R "Documentation" /usr/share/grafana
+  507  grep -R "Community" /usr/share/grafana
+  508  grep -R "Documentation" /usr/share/grafana/public/build
+  509  cd /usr/share/grafana/public/build/
+  510  ll
+  511  vim /usr/share/grafana/public/views/index.html
+  512  sudo systemctl restart grafana-server
+  513  vim /usr/share/grafana/public/views/index.html
+  514  vim /etc/grafana/grafana.ini
+  515  grafana-server -config /etc/grafana/grafana.ini -homepath /usr/share/grafana cfg:dump | grep -i title
+  516  grep -R "AppTitle" .
+  517  grep -R "Login - Grafana" .
+  518  grep -R "\"Grafana\"" .
+  519  vim /usr/share/grafana/public/views/index.html
+  520  sudo systemctl restart grafana-server
+  521  vim /usr/share/grafana/conf/defaults.ini
+  522  sudo systemctl restart grafana-server
+  523  grep -R "setTitle" .
+  524  vim /usr/share/grafana/public/views/index.html
+  525  sudo systemctl restart grafana-server
+  526  vim /usr/share/grafana/conf/defaults.ini
+  527  vim /etc/grafana/feature-overrides.ini
+  528  vim /usr/share/grafana/public/views/index.html
+  529  sudo systemctl restart grafana-server
+  530  vim /usr/share/grafana/public/views/index.html
+  531  sudo systemctl restart grafana-server
+  532  vim /etc/grafana/feature-overrides.ini
+  533  sudo systemctl restart grafana-server
+  534  grep -R "document.title" /usr/share/grafana/public/build/*.js
+  535  vim /usr/share/grafana/public/views/index.html
+  536  sudo systemctl restart grafana-server
+  537  grep -R "- Grafana" /usr/share/grafana/public/build
+  538  grep -R "AppTitle" /usr/share/grafana/public/build
+  539  vim /usr/share/grafana/public/views/index.html
+  540  sudo systemctl restart grafana-server
+  541  vim /usr/share/grafana/public/views/index.html
+  542  sudo systemctl restart grafana-server
+  543  vim /usr/share/grafana/public/views/index.html
+  544  vim /etc/grafana/grafana.ini
+  545  sudo systemctl restart grafana-server
+  546  vim /etc/grafana/grafana.ini
+  547  sudo systemctl restart grafana-server
+  548  vim /etc/grafana/grafana.ini
+  549  sudo systemctl restart grafana-server
+  550  vim /etc/grafana/grafana.ini
+  551  sudo systemctl restart grafana-server
+  552  sudo vim /etc/grafana/grafana.ini
+  553  sudo systemctl restart grafana-server
+  554  cd /usr/share/grafana/public/img
+  555  ll
+  556  sudo systemctl restart grafana-server
+  557  sudo find /usr/share/grafana -name "grafana_icon*"
+  558  sudo find /usr/share/grafana/public -name "fav*"
+  559  sudo systemctl restart grafana-server
+  560  systemctl restart grafana-server
+  561  sudo tee /etc/yum.repos.d/grafana.repo > /dev/null <<EOF
+  562  [grafana]
+  563  name=Grafana
+  564  baseurl=https://rpm.grafana.com
+  565  repo_gpgcheck=1
+  566  enabled=1
+  567  gpgcheck=1
+  568  gpgkey=https://rpm.grafana.com/gpg.key
+  569  sslverify=1
+  570  sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+  571  EOF
+  572  sudo dnf install -y loki
+  573  sudo systemctl enable --now loki
+  574  sudo systemctl status loki
+  575  ss -lntp | grep 3100
+  576  curl http://localhost:3100/ready
+  577  find /usr/share/grafana/public/build -name "grafana.dark*.css"
+  578  vim /usr/share/grafana/public/build/grafana.dark.d5a794927756549b8010.css
+  579  grep -n "css-xxxxx" /usr/share/grafana/public/build/grafana.dark.d5a794927756549b8010.css
+  580  grep -n "login" /usr/share/grafana/public/build/grafana.dark.d5a794927756549b8010.css | head -20
+  581  grafana-cli plugins install grafana-clock-panel
+  582  grafana cli   --homepath /usr/share/grafana   plugins install grafana-clock-panel
+  583  systemctl restart grafana-server
+  584  sudo systemctl stop grafana-server
+  585  cp /var/lib/grafana/grafana.db /var/lib/grafana/grafana.db.org
+  586  sudo rm /var/lib/grafana/grafana.db
+  587  sudo systemctl start grafana-server
+  588  grafana -v
+  589  dnf update grafana
+  590  systemctl restart grafana-server
+  591  grafana -v
+  592  grep -R "LoginTitle" /usr/share/grafana/public/build
+  593  grep -R 'this.LoginTitle="Welcome to Grafana"' /usr/share/grafana/public/build
+  594  grep -R "Welcome to Grafana" /usr/share/grafana/public
+  595  vim /usr/share/grafana/public/app/core/components/Branding/Branding.tsx
+  596  systemctl restart grafana-server.service
+  597  vim /usr/share/grafana/public/app/plugins/panel/welcome/Welcome.tsx:
+  598  vim /usr/share/grafana/public/app/plugins/panel/welcome/Welcome.tsx
+  599  systemctl restart grafana-server.service
+  600  vim /usr/share/grafana/public/views/index.html
+  601  systemctl restart grafana-server.service
+  602  history
+  603  vim /etc/grafana/grafana.ini
+  604  vim /usr/share/grafana/public/app/core/components/Branding/Branding.tsx
+  605  systemctl restart nginx
+  606  systemctl restart grafana-server.service
+  607  vim /usr/share/grafana/public/views/index.html
+  608  systemctl restart grafana-server.service
+  609  grep -R "document.title" /usr/share/grafana/public/build
+  610  history
+  611  vim /usr/share/grafana/conf/defaults.ini
+  612  vim /etc/grafana/grafana.ini
+  613  systemctl restart grafana-server.service
+  614  vim /usr/share/grafana/public/views/index.html
+  615  systemctl restart grafana-server.service
+  616  vim /usr/share/grafana/public/views/index.html
+  617  systemctl restart grafana-server.service
+  618  vim /usr/share/grafana/public/views/index.html
+  619  systemctl restart grafana-server.service
+  620  vim /usr/share/grafana/public/views/index.html
+  621  systemctl restart grafana-server.service
+  622  vim /usr/share/grafana/public/views/index.html
+  623  systemctl restart grafana-server.service
+  624  vim /usr/share/grafana/public/views/index.html
+  625  systemctl restart grafana-server.service
+  626  grep -R "radial-gradient" .
+  627  grep -R "2b2b2b" .
+  628  vim /usr/share/grafana/public/views/index.html
+  629  systemctl restart grafana-server.service
+  630  cd /usr/share/grafana/public/views/
+  631  ll
+  632  cd ..
+  633  cd /usr/share/grafana/public/build/
+  634  ll
+  635  cd ..
+  636  ll
+  637  ls -lh /usr/share/grafana/public/build/*.css
+  638  grep -i "linear-gradient" /usr/share/grafana/public/build/grafana.dark*.css
+  639  vim /usr/share/grafana/public/views/index.html
+  640  systemctl restart grafana-server.service
+  641  vim /usr/share/grafana/public/views/index.html
+  642  systemctl restart grafana-server.service
+  643  vim /usr/share/grafana/public/views/index.html
+  644  systemctl restart grafana-server.service
+  645  cd /usr/share/
+  646  cd /usr/share/grafana/public/build/static/img/
+  647  ll
+  648  mv g8_login_dark.571d84ac.svg g8_login_dark.571d84ac.svg.bak
+  649  vim /usr/share/grafana/public/views/index.html
+  650  systemctl restart grafana-server.service
+  651  vim /usr/share/grafana/public/views/index.html
+  652  systemctl restart grafana-server.service
+  653  vim /usr/share/grafana/public/views/index.html
+  654  systemctl restart grafana-server.service
+  655  vim /usr/share/grafana/public/views/index.html
+  656  systemctl restart grafana-server.service
+  657  vim /usr/share/grafana/public/views/index.html
+  658  systemctl restart grafana-server.service
+  659  mv g8_login_dark.571d84ac.svg.bak g8_login_dark.571d84ac.svg
+  660  vim /usr/share/grafana/public/views/index.html
+  661  systemctl restart grafana-server.service
+  662  vim /usr/share/grafana/public/views/index.html
+  663  systemctl restart grafana-server.service
+  664  vim /usr/share/grafana/public/views/index.html
+  665  systemctl restart grafana-server.service
+  666  vim /usr/share/grafana/public/views/index.html
+  667  systemctl restart grafana-server.service
+  668  vim /usr/share/grafana/public/views/index.html
+  669  systemctl restart grafana-server.service
+  670  vim /usr/share/grafana/public/views/index.html
+  671  systemctl restart grafana-server.service
+  672  vim /usr/share/grafana/public/views/index.html
+  673  systemctl restart grafana-server.service
+  674  vim /usr/share/grafana/public/views/index.html
+  675  systemctl restart grafana-server.service
+  676  sudo dnf install -y oracle-epel-release-el8
+  677  sudo dnf install -y ansible
+  678  sudo dnf install -y ansible-core
+  679  sudo dnf remove ansible
+  680  sudo dnf install ansible-core
+  681  ansible --version
+  682  ansible localhost -m ping -c local
+  683  ansible-galaxy collection install community.general
+  684  ansible-galaxy collection install ansible.posix
+  685  ansible localhost -m ping -c local
+  686  ansible-galaxy collection uninstall community.general
+  687  ansible-galaxy collection remove community.general
+  688  ansible-galaxy collection list
+  689  rm -rf /root/.ansible/collections/ansible_collections/community/general
+  690  ansible-galaxy collection install community.general:10.7.0
+  691  ansible-galaxy collection list
+  692  ansible localhost -m ping -c local
+  693  mkdir /ansible
+  694  mkdir -p /ansible/{inventory,playbooks,roles,group_vars,host_vars,files,templates}
+  695  tree /ansible
+  696  cd /ansible
+  697  vim inventory
+  698  touch inventory
+  699  vim inventory
+  700  vi inventory
+  701  cd inventory/
+  702  vi inventory
+  703  ansible -i /ansible/inventory/inventory all -m ping
+  704  mv inventory hosts
+  705  ansible -i /ansible/inventory/hosts all -m ping
+  706  vim hosts
+  707  ansible -i /ansible/inventory/inventory all -m command -a "hostname"
+  708  cat /ansible/inventory/hosts
+  709  ansible -i /ansible/inventory/hosts all -m command -a "hostname"
+  710  hostname
+  711  ansible-inventory -i /ansible/inventory/hosts --list
+  712  ansible -i /ansible/inventory/hosts all -m command -a "hostname"
+  713  ssh-keygen -t rsa -b 4096
+  714  ssh-copy-d root@10.64.120.120
+  715  ssh-copy-id root@10.64.120.120
+  716  ping 10.64.120.120
+  717  ssh-copy-id root@10.64.120.120
+  718  ssh-keygen -t rsa -b 4096
+  719  ls -l ~/.ssh/
+  720  ssh-copy-id root@10.64.120.120
+  721  ssh root@10.64.120.120
+  722  vim /ansible/inventory/hosts
+  723  ansible -i /ansible/inventory/hosts servers -m ping
+  724  ansible -i /ansible/inventory/hosts servers -m hostname
+  725  ansible -i /ansible/inventory/hosts servers -m "hostname"
+  726  cat /ansible/inventory/hosts
+  727  ansible -i /ansible/inventory/hosts servers -m command -a "hostname"
+  728  ansible -i /ansible/inventory/hosts servers -m setup | grep ansible_hostname
+  729  ifconfig
+  730  ansible -i /ansible/inventory/hosts servers -m command -a "ifconfig"
+  731  ansible -i /ansible/inventory/hosts servers -m command -a "lastb"
+  732  ansible -i /ansible/inventory/hosts servers -m command -a "lasta"
+  733  ansible -i /ansible/inventory/hosts servers -m command -a "last"
+  734  vim  /ansible/playbooks/install_ftp.yml
+  735  cat > /ansible/playbooks/install_ftp.yml << 'EOF'
+  736  ---
+  737  - name: Install FTP server on remote host
+  738    hosts: ftp_servers
+  739    become: yes
+  740    tasks:
+  741      - name: Install vsftpd package
+  742        dnf:
+  743          name: vsftpd
+  744          state: present
+  745      - name: Start and enable vsftpd service
+  746        systemd:
+  747          name: vsftpd
+  748          state: started
+  749          enabled: yes
+  750      - name: Install firewalld
+  751        dnf:
+  752          name: firewalld
+  753          state: present
+  754      - name: Enable FTP port in firewall
+  755        firewalld:
+  756          service: ftp
+  757          permanent: yes
+  758          state: enabled
+  759          immediate: yes
+  760  EOF
+  761  vim /ansible/playbooks/install_ftp.yml
+  762  vim /ansible/inventory/hosts
+  763  cat /ansible/inventory/hosts
+  764  ansible -i /ansible/inventory/hosts ftp_servers -m ping
+  765  ansible-playbook -i /ansible/inventory/hosts /ansible/playbooks/install_ftp.yml
+  766  ssh root@10.64.120.120
+  767  sudo dnf install -y git golang mariadb-server wget unzip
+  768  sudo systemctl enable --now mariadb
+  769  mysql -u root -p
+  770  cd /usr/local/bin
+  771  wget https://github.com/ansible-semaphore/semaphore/releases/latest/download/semaphore_linux_amd64
+  772  mv semaphore_linux_amd64 semaphore
+  773  chmod +x semaphore
+  774  cd /usr/local/bin
+  775  wget https://github.com/semaphoreui/semaphore/releases/download/v2.18.13/semaphore_2.18.13_linux_amd64.tar.gz
+  776  curl -s https://api.github.com/repos/semaphoreui/semaphore/releases/latest | grep tag_name
+  777  wget https://github.com/semaphoreui/semaphore/releases/download/v2.18.13/semaphore_2.18.13_linux_amd64
+  778  curl -s https://api.github.com/repos/semaphoreui/semaphore/releases/tags/v2.18.13 | grep browser_download_url
+  779  wget https://github.com/semaphoreui/semaphore/archive/refs/tags/v2.18.13.zip
+  780  tar -xvzf semaphore_*.tar.gz
+  781  mv semaphore /usr/local/bin/
+  782  chmod +x /usr/local/bin/semaphore
+  783  unzip v2.18.13.zip
+  784  ls -l
+  785  mv semaphore-2.18.13 semaphore
+  786  ll
+  787  cd semaphore/
+  788  ll
+  789  mv semaphore /usr/local/bin/
+  790  chmod +x /usr/local/bin/semaphore
+  791  cd ..
+  792  pwd
+  793  semaphore version
+  794  echo $PATH
+  795  cd semaphore/
+  796  echo $PATH
+  797  semaphore setup
+  798  exit
+  799  semaphore setup
+  800  cd /usr/local/bin/
+  801  semaphore setup
+  802  cd semaphore/
+  803  [root@ol8-19 ~]# cd /usr/local/bin/
+  804  [root@ol8-19 bin]# semaphore setup
+  805  [root@ol8-19 ~]# cd /usr/local/bin/
+  806  [root@ol8-19 bin]# semaphore setup
+  807  ll
+  808  exit
+  809  rm -rf v2.18.13.zip semaphore
+  810  cd /usr/bin/
+  811  wget https://github.com/semaphoreui/semaphore/releases/download/v2.18.13/semaphore_2.18.13_linux_amd64
+  812  dnf install -y golang git
+  813  cd /opt
+  814  git clone https://github.com/semaphoreui/semaphore.git
+  815  cd semaphore
+  816  go build -o semaphore .
+  817  mv semaphore /usr/local/bin/
+  818  chmod +x /usr/local/bin/semaphore
+  819  cd ..
+  820  mv semaphore /usr/local/bin/
+  821  cd /usr/local/bin/semaphore/
+  822  ll
+  823  semaphore version
+  824  dnf install -y golang git make gcc
+  825  go build -o semaphore ./cmd/semaphore
+  826  go build -o semaphore ./cli
+  827  mv semaphore /usr/local/bin/
+  828  chmod +x /usr/local/bin/semaphore
+  829  wget https://github.com/semaphoreui/semaphore/releases/download/v2.18.13/semaphore_community_2.18.13_linux_amd64.deb
+  830  uname
+  831  uname -m
+  832  wget https://github.com/semaphoreui/semaphore/releases/download/v2.18.13/semaphore_community_2.18.13_linux_amd64.rpm
+  833  sudo dnf install -y ./semaphore_community_2.18.13_linux_amd64.rpm
+  834  semaphore setup
+  835  sudo vi /etc/semaphore/config.json
+  836  mysql -u semaphore -p
+  837  sudo mysql
+  838  mysql -u semaphore -p
+  839  semaphore setup
+  840  vim /root/config.json
+  841  sudo vi /etc/systemd/system/semaphore.service
+  842  semaphore server --config /root/config.json --port 3333
+  843  semaphore server --config /root/config.json -p 3333
+  844  ./semaphore server --config /root/config.json
+  845  nohup ./semaphore server --config /root/config.json &
+  846  semaphore server --config /root/config.json
+  847  pkill semaphore
+  848  semaphore server --config /root/config.json --port 3333
+  849  sudo vi /etc/systemd/system/semaphore.service
+  850  vi /root/config.json
+  851  pkill semaphore
+  852  semaphore server --config /root/config.json
+  853  pkill semaphore
+  854  semaphore server --config /root/config.json
+  855  vi /root/config.json
+  856  pkill semaphore
+  857  semaphore server --config /root/config.json
+  858  vi /root/config.json
+  859  pkill semaphore
+  860  semaphore server --config /root/config.json
+  861  nohup semaphore server --config /root/config.json &
+  862  vi /root/config.json
+  863  cat .ssh/id_rsa
+  864  ssh root@10.64.120.120
+  865  ansible --version
+  866  ansible-galaxy collection list
+  867  ansible-galaxy collection install ansible.windows
+  868  ansible-galaxy collection list
+  869  sudo systemctl restart semaphore
+  870  systemctl status semaphore
+  871  ps -ef | grep semaphore
+  872  ansible-galaxy collection list | grep ansible.windows
+  873  ansible-doc ansible.windows.win_shell
+  874  cat /root/config.jsoncat /root/config.jsoncatcaaa
+  875
+  876  caaa
+  877  cat /root/config.json
+  878  export ANSIBLE_COLLECTIONS_PATHS=/root/.ansible/collections:/usr/share/ansible/collections
+  879  kill 732864
+  880  nohup semaphore server --config /root/config.json >/var/log/semaphore.log 2>&1 &
+  881  ansible-doc ansible.windows.win_shell
+  882  ssh-copy-id administrator@10.64.105.50
+  883  exit
+  884  history
+  885  cat .ssh/id_rsa
+  886  cat .ssh/id_rsa.pub
+  887  history
+  888  ssh-copy-id root@10.64.120.120
+  889  ssh root@10.64.120.120
+  890  cat .ssh/id_rsa.pub
+  891  ssh administrator@10.64.105.50
+  892  cat .ssh/id_rsa.pub
+  893  ssh administrator@10.64.105.50
+  894  ssh -v administrator@10.64.105.50
+  895  ssh-copy-id administrator@10.64.105.50
+  896  cat .ssh/id_rsa.pub
+  897  ssh -v administrator@10.64.105.50
+  898  cat ~/.ssh/id_ed25519.pub | ssh administrator@10.64.105.52 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+  899  cat .ssh/id_rsa.pub | ssh administrator@10.64.105.52 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+  900  cat .ssh/id_rsa.pub | ssh administrator@10.64.105.50 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+  901  scp ~/.ssh/id_rsa.pub administrator@10.64.105.50:C:/Users/Administrator/id_rsa.pub
+  902  ssh -v administrator@10.64.105.50
+  903  cat .ssh/id_rsa.pub
+  904  ssh -v administrator@10.64.105.50
+  905  ssh administrator@10.64.105.52
+  906  ssh -v administrator@10.64.105.52
+  907  ssh -v administrator@10.64.105.50
+  908  scp ~/.ssh/id_rsa.pub administrator@10.64.105.52:C:/Users/Administrator/id_rsa.pub
+  909  cat scp ~/.ssh/id_rsa.pub
+  910  ssh -v administrator@10.64.105.52
+  911  ssh administrator@10.64.105.52
+  912  ansible-galaxy collection install ansible.windows
+  913  dnf ansible-galaxy collection install ansible.windows
+  914  ansible-galaxy collection list
+  915  dnf ansible-galaxy collection install ansible.windows
+  916  dnf install  ansible-galaxy collection ansible.windows
+  917  ssh -v administrator@10.64.105.50
+  918  ssh Administrator@192.168.1.10 powershell.exe
+  919  ssh Administrator@10.64.105.52 powershell.exe
+  920  ansible-galaxy collection list
+  921  ansible --version
+  922  ansible collection location =
+  923  ansible collection location = /root/.ansible/collections:/usr/share/ansible/collections
+  924  [root@ol8-19 ~]# ansible collection location = /root/.ansible/collections:/usr/share/ansible/collections
+  925  usage: ansible [-h] [--version] [-v] [-b] [--become-method BECOME_METHOD] [--become-user BECOME_USER]
+  926                 [-K | --become-password-file BECOME_PASSWORD_FILE] [-i INVENTORY] [--list-hosts] [-l SUBSET]
+  927                 [-P POLL_INTERVAL] [-B SECONDS] [-o] [-t TREE] [--private-key PRIVATE_KEY_FILE] [-u REMOTE_USER]
+  928                 [-c CONNECTION] [-T TIMEOUT] [--ssh-common-args SSH_COMMON_ARGS] [--sftp-extra-args SFTP_EXTRA_ARGS]
+  929                 [--scp-extra-args SCP_EXTRA_ARGS] [--ssh-extra-args SSH_EXTRA_ARGS]
+  930                 [-k | --connection-password-file CONNECTION_PASSWORD_FILE] [-C] [-D] [-e EXTRA_VARS]
+  931                 [--vault-id VAULT_IDS] [-J | --vault-password-file VAULT_PASSWORD_FILES] [-f FORKS] [-M MODULE_PATH]
+  932                 [--playbook-dir BASEDIR] [--task-timeout TASK_TIMEOUT] [-a MODULE_ARGS] [-m MODULE_NAME]
+  933                 pattern
+  934  ansible: error: unrecognized arguments: location = /root/.ansible/collections:/usr/share/ansible/collections
+  935  usage: ansible [-h] [--version] [-v] [-b] [--become-method BECOME_METHOD] [--become-user BECOME_USER]
+  936                 [-K | --become-password-file BECOME_PASSWORD_FILE] [-i INVENTORY] [--list-hosts] [-l SUBSET]
+  937                 [-P POLL_INTERVAL] [-B SECONDS] [-o] [-t TREE] [--private-key PRIVATE_KEY_FILE] [-u REMOTE_USER]
+  938                 [-c CONNECTION] [-T TIMEOUT] [--ssh-common-args SSH_COMMON_ARGS] [--sftp-extra-args SFTP_EXTRA_ARGS]
+  939                 [--scp-extra-args SCP_EXTRA_ARGS] [--ssh-extra-args SSH_EXTRA_ARGS]
+  940                 [-k | --connection-password-file CONNECTION_PASSWORD_FILE] [-C] [-D] [-e EXTRA_VARS]
+  941                 [--vault-id VAULT_IDS] [-J | --vault-password-file VAULT_PASSWORD_FILES] [-f FORKS] [-M MODULE_PATH]
+  942                 [--playbook-dir BASEDIR] [--task-timeout TASK_TIMEOUT] [-a MODULE_ARGS] [-m MODULE_NAME]
+  943                 pattern
+  944  Define and run a single task 'playbook' against a set of hosts
+  945  positional arguments:
+  946    pattern               host pattern
+  947  options:
+  948    --become-password-file BECOME_PASSWORD_FILE, --become-pass-file BECOME_PASSWORD_FILE
+  949                          Become password file
+  950    --connection-password-file CONNECTION_PASSWORD_FILE, --conn-pass-file CONNECTION_PASSWORD_FILE
+  951                          Connection password file
+  952    --list-hosts          outputs a list of matching hosts; does not execute anything else
+  953    --playbook-dir BASEDIR
+  954                          Since this tool does not use playbooks, use this as a substitute playbook directory. This sets
+  955                          the relative path for many features including roles/ group_vars/ etc.
+  956    --task-timeout TASK_TIMEOUT
+  957                          set task timeout limit in seconds, must be positive integer.
+  958    --vault-id VAULT_IDS  the vault identity to use. This argument may be specified multiple times.
+  959    --vault-password-file VAULT_PASSWORD_FILES, --vault-pass-file VAULT_PASSWORD_FILES
+  960                          vault password file
+  961  ansible-doc ansible.windows.win_file
+  962  systemctl status semaphoresystemctl status semaphoresystemctl status semaphoresystemctl status semaphoresystemctl status semaphoresystemctl st
+  963  ansible-doc ansible.windows.win_file
+  964  ystemctl status semaphore
+  965  systemctl status semaphore
+  966  ps -ef | grep semaphore
+  967  ansible-config dump | grep COLLECTIONS_PATHS
+  968  which ansible
+  969  which ansible-playbook
+  970  ansible-playbook --version
+  971  echo $PATH
+  972  rm - rf /tmp/semaphore/project_1/repository_3_template_11/win.yml
+  973  rm -rf /tmp/semaphore/project_1/repository_3_template_11/win.yml
+  974  cd /tmp/semaphore/project_1/repository_3_template_11/
+  975  ll
+  976  vim win.yml
+  977  cd /tmp/semaphore/project_1/repository_3_template_11
+  978  ansible-playbook -i <inventory> win.yml -vvvv
+  979  ansible-playbook -i inventory.ini win.yml -vvvv
+  980  ansible-playbook -i "localhost," -c local win.yml -vvvv
+  981  ansible-playbook -i "windows" -c local win.yml -vvvv
+  982  cat win.yml
+  983  cd /tmp/semaphore/project_1/repository_3_template_11
+  984  ansible-playbook win.yml --syntax-check
+  985  ansible --version
+  986  ansible-galaxy collection list
+  987  sudo -u semaphore ansible-galaxy collection install ansible.windows
+  988  ansible -i inventory windows_10 -m raw -a "whoami"
+  989  vim /etc/ansible/inventory/win_10
+  990  cd /ansible/inventory/
+  991  ll
+  992  vim hosts
+  993  ansible -i windows --list-hosts
+  994  pwd
+  995  ansible -i /ansible/inventory/hosts --list-hosts
+  996  ansible -i /ansible/inventory/hosts windows -m raw -a "whoami"
+  997  ansible -i /ansible/inventory/hosts windows -m raw -a "echo Hello from Ansible > C:\temp\test.txt"
+  998  cd ..
+  999  cd playbooks/
+ 1000  ll
+ 1001  vim win_create_test.yml
+ 1002  ansible-playbook -i /ansible/inventory/hosts win_create_test.yml
+ 1003  vim win_create_test.yml
+ 1004  ansible-playbook --syntax-check -i /ansible/inventory/hosts /ansible/playbooks/win_create_test.yml
+ 1005  cat > /ansible/playbooks/win_create_test.yml <<'EOF'
+---
+- name: Windows SSH Test Configuration
+  hosts: windows
+  gather_facts: false
+
+  tasks:
+    - name: Create C:\temp directory
+      raw: mkdir C:\temp
+
+    - name: Create MyFolder directory
+      raw: mkdir C:\temp\MyFolder
+
+    - name: Create test text file
+      raw: echo Hello from Ansible > C:\temp\MyFolder\test.txt
+
+    - name: Verify file content
+      raw: type C:\temp\MyFolder\test.txt
+      register: result
+
+    - name: Show file content
+      debug:
+        var: result.stdout
+EOF
+
+ 1006  ansible-playbook --syntax-check -i /ansible/inventory/hosts /ansible/playbooks/win_create_test.yml
+ 1007  ansible-playbook -i /ansible/inventory/hosts /ansible/playbooks/win_create_test.yml
+ 1008  cat > /ansible/playbooks/win_create_test.yml <<'EOF'
+---
+- name: Windows SSH Test Configuration
+  hosts: windows
+  gather_facts: false
+
+  tasks:
+    - name: Create C:\temp directory
+      raw: powershell -Command "New-Item -ItemType Directory -Path 'C:\temp' -Force"
+
+    - name: Create MyFolder directory
+      raw: powershell -Command "New-Item -ItemType Directory -Path 'C:\temp\MyFolder' -Force"
+
+    - name: Create test text file
+      raw: powershell -Command "Set-Content -Path 'C:\temp\MyFolder\test.txt' -Value 'Hello from Ansible'"
+
+    - name: Verify file content
+      raw: powershell -Command "Get-Content 'C:\temp\MyFolder\test.txt'"
+      register: result
+
+    - name: Show file content
+      debug:
+        var: result.stdout
+EOF
+
+ 1009  ansible-playbook -i /ansible/inventory/hosts /ansible/playbooks/win_create_test.yml
+ 1010  history > as.txt
