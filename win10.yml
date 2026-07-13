@@ -1,21 +1,22 @@
 ---
 - name: Windows SSH Test Configuration
-  hosts: windows_10
+  hosts: windows
   gather_facts: false
 
   tasks:
     - name: Create C:\temp directory
-      raw: New-Item -ItemType Directory -Path C:\temp -Force
+      raw: powershell -Command "New-Item -ItemType Directory -Path 'C:\temp' -Force"
 
     - name: Create MyFolder directory
-      raw: New-Item -ItemType Directory -Path C:\temp\MyFolder -Force
+      raw: powershell -Command "New-Item -ItemType Directory -Path 'C:\temp\MyFolder' -Force"
 
-    - name: Create test file
-      raw: Set-Content -Path C:\temp\MyFolder\test.txt -Value "Hello from Ansible"
+    - name: Create test text file
+      raw: powershell -Command "Set-Content -Path 'C:\temp\MyFolder\test.txt' -Value 'Hello from Ansible'"
 
-    - name: Read file
-      raw: Get-Content C:\temp\MyFolder\test.txt
+    - name: Verify file content
+      raw: powershell -Command "Get-Content 'C:\temp\MyFolder\test.txt'"
       register: result
 
-    - debug:
+    - name: Show file content
+      debug:
         var: result.stdout
