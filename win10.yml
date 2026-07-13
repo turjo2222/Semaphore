@@ -17,6 +17,4 @@
       raw: powershell -Command "Get-Content 'C:\temp\MyFolder\test.txt'"
       register: result
 
-    - name: Show file content
-      debug:
-        var: result.stdout
+
