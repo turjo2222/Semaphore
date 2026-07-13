@@ -1,6 +1,6 @@
 ---
 - name: Windows tasks
-  hosts: windows_hosts
+  hosts: windows_10
   gather_facts: true
   
   tasks:
