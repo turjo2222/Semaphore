@@ -4,7 +4,7 @@
   gather_facts: false
 
   tasks:
-    - name: Create C:\Temp\MyFolder
+    - name: Create C:\temp\MyFolder
       ansible.windows.win_file:
         path: C:\Temp\MyFolder
         state: directory
