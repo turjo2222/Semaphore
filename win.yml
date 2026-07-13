@@ -1,10 +1,20 @@
 ---
-- name: Create a folder on Windows
-  hosts: windows_10
+- name: Setup Windows collections
+  hosts: localhost
+  connection: local
   gather_facts: false
+  tasks:
+    - name: Install ansible.windows collection
+      ansible.builtin.command:
+        cmd: ansible-galaxy collection install ansible.windows --force
+      register: result
+      changed_when: "'already installed' not in result.stdout"
 
+- name: Windows tasks
+  hosts: windows_hosts
+  gather_facts: true
   tasks:
     - name: Create C:\temp\MyFolder
-      win_file:
+      ansible.windows.win_file:
         path: C:\temp\MyFolder
         state: directory
