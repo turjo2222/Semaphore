@@ -1,5 +1,5 @@
 ---
-- name: Copy Avro installer
+- name: Install Avro Keyboard
   hosts: windows_10
   gather_facts: false
 
@@ -9,19 +9,19 @@
       raw: |
         powershell.exe -NoProfile -Command "New-Item -ItemType Directory -Path 'C:\temp' -Force"
 
-    - name: Connect to share
-      raw: |
-        net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
-
-    - name: Check source file
-      raw: |
-        powershell.exe -NoProfile -Command "Test-Path '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe'"
-      register: check
-
-    - name: Show check
-      debug:
-        var: check.stdout
-
-    - name: Copy file
+    - name: Copy Avro installer
       raw: |
         powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -Destination 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
+
+    - name: Install Avro Keyboard
+      raw: |
+        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
+
+    - name: Check Avro installed
+      raw: |
+        powershell.exe -NoProfile -Command "Get-ItemProperty 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*' | Where-Object {$_.DisplayName -like '*Avro*'} | Select-Object DisplayName"
+      register: avro_check
+
+    - name: Show installation result
+      debug:
+        var: avro_check.stdout
