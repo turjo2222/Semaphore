@@ -1,0 +1,13 @@
+---
+- name: Windows tasks
+  hosts: windows_hosts
+  gather_facts: true
+  
+  tasks:
+    - name: Create C:\temp\MyFolder
+      win_command: powershell.exe -Command "New-Item -ItemType Directory -Path C:\temp\MyFolder -Force"
+      register: result
+      
+    - name: Display result
+      debug:
+        var: result.stdout
