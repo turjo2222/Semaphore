@@ -1,13 +1,15 @@
 ---
 - name: Windows tasks
   hosts: windows_10
-  gather_facts: true
+  gather_facts: false
   
   tasks:
-    - name: Create C:\temp\MyFolder
-      win_command: powershell.exe -Command "New-Item -ItemType Directory -Path C:\temp\MyFolder -Force"
+    - name: Create folder and verify
+      raw: |
+        mkdir C:\temp\MyFolder 2>nul
+        if exist C:\temp\MyFolder (echo Folder exists) else (echo Folder creation failed)
       register: result
       
-    - name: Display result
+    - name: Show result
       debug:
-        var: result.stdout
+        var: result.stdout_lines
