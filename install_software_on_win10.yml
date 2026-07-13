@@ -1,6 +1,6 @@
 ---
 - name: Copy Avro installer to Windows 10.64.105.50
-  hosts: windows
+  hosts: windows_10
   gather_facts: false
 
   tasks:
