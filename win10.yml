@@ -5,25 +5,29 @@
   
   tasks:
     - name: Create folder with PowerShell
-      raw: powershell -Command "New-Item -ItemType Directory -Path C:\temp\MyFolder -Force | Out-Null; if (Test-Path C:\temp\MyFolder) { 'SUCCESS' } else { 'FAILED' }"
+      raw: powershell -Command "New-Item -ItemType Directory -Path C:\temp\MyFolder -Force"
       register: create_result
+      failed_when: false
       
-    - name: Create a test file with timestamp
-      raw: powershell -Command "$date = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; \"Created by Ansible on $date\" | Out-File -FilePath C:\temp\MyFolder\test.txt -Encoding UTF8"
+    - name: Check if folder exists
+      raw: powershell -Command "Test-Path C:\temp\MyFolder"
+      register: check_result
+      
+    - name: Display results
+      debug:
+        msg: 
+          - "Creation output: {{ create_result.stdout }}"
+          - "Folder exists: {{ check_result.stdout }}"
+          - "Return code: {{ create_result.rc }}"
+          
+    - name: Create a test file
+      raw: powershell -Command "'Created by Ansible' | Out-File -FilePath C:\temp\MyFolder\test.txt -Encoding UTF8"
       register: file_result
       
     - name: Read the test file
       raw: powershell -Command "Get-Content C:\temp\MyFolder\test.txt"
       register: read_result
       
-    - name: Verify folder exists
-      raw: powershell -Command "Test-Path C:\temp\MyFolder"
-      register: verify_result
-      
-    - name: Display all results
+    - name: Show file content
       debug:
-        msg:
-          - "Folder creation: {{ create_result.stdout }}"
-          - "Folder exists: {{ verify_result.stdout }}"
-          - "File content: {{ read_result.stdout }}"
-          - "All tasks completed successfully!"
+        var: read_result.stdout
