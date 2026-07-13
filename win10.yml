@@ -1,22 +1,13 @@
 ---
-- name: Create folder on Windows
-  hosts: windows_10
+- name: Create a text file on Windows
+  hosts: 10.64.105.52
   gather_facts: false
 
   tasks:
-    - name: Create C:\temp\MyFolder
-      raw: >
-        powershell.exe -NoProfile -ExecutionPolicy Bypass -Command
-        "$folder='C:\temp\MyFolder';
-        if (!(Test-Path $folder)) {
-          New-Item -ItemType Directory -Path $folder -Force | Out-Null;
-          Write-Output 'Folder created'
-        } else {
-          Write-Output 'Folder already exists'
-        }"
-
+    - name: Create test.txt
+      raw: echo Hello from Ansible> C:\temp\test.txt
       register: result
 
-    - name: Show output
+    - name: Show result
       debug:
-        var: result.stdout
+        var: result
