@@ -1,20 +1,13 @@
 ---
-- name: Setup Windows collections
-  hosts: localhost
-  connection: local
-  gather_facts: false
-  tasks:
-    - name: Install ansible.windows collection
-      ansible.builtin.command:
-        cmd: ansible-galaxy collection install ansible.windows --force
-      register: result
-      changed_when: "'already installed' not in result.stdout"
-
 - name: Windows tasks
   hosts: windows_10
   gather_facts: true
+  
   tasks:
     - name: Create C:\temp\MyFolder
-      ansible.windows.win_file:
-        path: C:\temp\MyFolder
-        state: directory
+      win_command: powershell.exe -Command "New-Item -ItemType Directory -Path C:\temp\MyFolder -Force"
+      register: result
+      
+    - name: Display result
+      debug:
+        var: result.stdout
