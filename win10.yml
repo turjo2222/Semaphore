@@ -1,6 +1,6 @@
 ---
 - name: Create folder on Windows
-  hosts: 10.64.105.52
+  hosts: windows_10
   gather_facts: false
 
   tasks:
