@@ -5,14 +5,13 @@
   
   tasks:
     - name: Create folder
-      win_command: powershell.exe -Command "New-Item -ItemType Directory -Path C:\temp\MyFolder -Force -ErrorAction SilentlyContinue"
-      register: create_result
-      failed_when: false
+      win_shell: |
+        if (!(Test-Path "C:\temp\MyFolder")) {
+          New-Item -ItemType Directory -Path "C:\temp\MyFolder" -Force
+        }
+        Test-Path "C:\temp\MyFolder"
+      register: result
       
-    - name: Verify folder
-      win_command: powershell.exe -Command "Test-Path C:\temp\MyFolder"
-      register: verify_result
-      
-    - name: Show result
+    - name: Display result
       debug:
-        msg: "Folder exists: {{ verify_result.stdout }}"
+        msg: "Folder exists: {{ result.stdout }}"
