@@ -5,14 +5,13 @@
   
   tasks:
     - name: Create folder
-      raw: powershell -Command "New-Item -ItemType Directory -Path C:\temp\MyFolder -Force | Out-Null"
+      raw: powershell -Command "New-Item -ItemType Directory -Path C:\temp\MyFolder -Force -ErrorAction SilentlyContinue | Out-Null"
       register: create_result
-      failed_when: false
       
     - name: Check if folder exists
       raw: powershell -Command "Test-Path C:\temp\MyFolder"
       register: check_result
       
-    - name: Show result
+    - name: Display result
       debug:
         msg: "Folder exists: {{ check_result.stdout }}"
