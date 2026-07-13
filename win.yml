@@ -5,6 +5,6 @@
 
   tasks:
     - name: Create C:\temp\MyFolder
-      ansible.windows.win_file:
+      win_file:
         path: C:\temp\MyFolder
         state: directory
