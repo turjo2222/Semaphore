@@ -11,7 +11,7 @@
       changed_when: "'already installed' not in result.stdout"
 
 - name: Windows tasks
-  hosts: windows_hosts
+  hosts: windows_10
   gather_facts: true
   tasks:
     - name: Create C:\temp\MyFolder
