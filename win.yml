@@ -1,12 +1,10 @@
 ---
-- name: Copy host file
+- name: Create a folder on Windows
   hosts: windows
-  gather_facts: no
+  gather_facts: false
 
   tasks:
-    - name: Copy host.txt
-      ansible.windows.win_shell: |
-        Copy-Item `
-          -Path "\\10.64.105.105\mostafa\host.txt" `
-          -Destination "C:\Temp\host.txt" `
-          -Force
+    - name: Create C:\Temp\MyFolder
+      ansible.windows.win_file:
+        path: C:\Temp\MyFolder
+        state: directory
