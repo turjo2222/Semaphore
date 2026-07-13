@@ -1,15 +1,15 @@
 ---
 - name: Windows configuration
-  hosts: windows_10
+  hosts: 10.64.105.52
   gather_facts: false
   
   tasks:
-    - name: Create folder
-      raw: powershell -Command "New-Item -ItemType Directory -Path C:\temp\MyFolder -Force -ErrorAction SilentlyContinue | Out-Null"
+    - name: Create folder using CMD
+      raw: if not exist "C:\temp\MyFolder" mkdir "C:\temp\MyFolder"
       register: create_result
       
-    - name: Check if folder exists
-      raw: powershell -Command "Test-Path C:\temp\MyFolder"
+    - name: Check if folder exists using CMD
+      raw: if exist "C:\temp\MyFolder" echo YES
       register: check_result
       
     - name: Display result
