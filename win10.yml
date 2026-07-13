@@ -1,7 +1,7 @@
 ---
 - name: Windows configuration
   hosts: windows_10
-  gather_facts: false
+  gather_facts: true
   
   tasks:
     - name: Create folder using PowerShell
