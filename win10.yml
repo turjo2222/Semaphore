@@ -4,13 +4,21 @@
   gather_facts: false
   
   tasks:
-    - name: Create folder using win_shell
-      win_shell: |
-        $folder = "C:\temp\MyFolder"
-        New-Item -ItemType Directory -Path $folder -Force -ErrorAction SilentlyContinue | Out-Null
-        Test-Path $folder
+    - name: Copy PowerShell script
+      raw: |
+        echo "$folder = 'C:\temp\MyFolder'" > C:\temp\create_folder.ps1
+        echo "if (!(Test-Path `$folder)) {" >> C:\temp\create_folder.ps1
+        echo "    New-Item -ItemType Directory -Path `$folder -Force" >> C:\temp\create_folder.ps1
+        echo "    Write-Host 'Folder created'" >> C:\temp\create_folder.ps1
+        echo "} else {" >> C:\temp\create_folder.ps1
+        echo "    Write-Host 'Folder already exists'" >> C:\temp\create_folder.ps1
+        echo "}" >> C:\temp\create_folder.ps1
+        echo "Test-Path `$folder" >> C:\temp\create_folder.ps1
+      
+    - name: Run PowerShell script
+      raw: powershell -ExecutionPolicy Bypass -File C:\temp\create_folder.ps1
       register: result
       
     - name: Show result
       debug:
-        msg: "Folder exists: {{ result.stdout }}"
+        var: result.stdout
