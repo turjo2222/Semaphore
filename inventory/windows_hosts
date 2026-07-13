@@ -1,0 +1,8 @@
+[windows_10]
+10.64.105.52
+[windows:vars]
+[windows_10:vars]
+ansible_connection=ssh
+ansible_user=Administrator
+ansible_shell_type=cmd
+ansible_shell_executable=cmd.exe
