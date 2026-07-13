@@ -1,1 +1,33 @@
-
+---
+- name: Windows configuration
+  hosts: windows_10
+  gather_facts: false
+  
+  tasks:
+    - name: Create folder with PowerShell
+      raw: powershell -Command "New-Item -ItemType Directory -Path C:\temp\MyFolder -Force"
+      register: create_result
+      failed_when: false
+      
+    - name: Check if folder exists
+      raw: powershell -Command "Test-Path C:\temp\MyFolder"
+      register: check_result
+      
+    - name: Display results
+      debug:
+        msg: 
+          - "Creation output: {{ create_result.stdout }}"
+          - "Folder exists: {{ check_result.stdout }}"
+          - "Return code: {{ create_result.rc }}"
+          
+    - name: Create a test file
+      raw: powershell -Command "'Created by Ansible on {{ ansible_date_time.date }}' | Out-File -FilePath C:\temp\MyFolder\test.txt -Encoding UTF8"
+      register: file_result
+      
+    - name: Read the test file
+      raw: powershell -Command "Get-Content C:\temp\MyFolder\test.txt"
+      register: read_result
+      
+    - name: Show file content
+      debug:
+        var: read_result.stdout
