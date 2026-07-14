@@ -30,17 +30,17 @@
     # =========================
     # Install Bijoy 52
     # =========================
-    - name: Copy Bijoy 52 folder
+    - name: Copy Bijoy 52 installer
       raw: |
-        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\Bangla\Bijoy52 2016by sn\*' -Destination 'C:\temp\Bijoy52' -Recurse -Force"
+        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\Bangla\Bijoy52 2016by sn\Bijoy_Bayanno.msi' -Destination 'C:\temp\Bijoy_Bayanno.msi' -Force"
 
     - name: Install Bijoy 52
       raw: |
-        powershell.exe -NoProfile -Command "Start-Process 'msiexec.exe' -ArgumentList '/i C:\temp\Bijoy52\Bijoy_Bayanno.msi /qn /norestart' -Wait"
+        powershell.exe -NoProfile -Command "Start-Process 'msiexec.exe' -ArgumentList '/i C:\temp\Bijoy_Bayanno.msi /qn /norestart' -Wait"
 
-    - name: Remove Bijoy 52 folder
+    - name: Remove Bijoy 52 installer
       raw: |
-        powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\Bijoy52' -Recurse -Force"
+        powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\Bijoy_Bayanno.msi' -Force"
 
     # =========================
     # Install WinRAR
