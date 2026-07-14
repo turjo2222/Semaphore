@@ -20,6 +20,10 @@
       raw: |
         powershell.exe -NoProfile -Command "Start-Process 'C:\temp\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
 
+    - name: Remove installer
+      raw: |
+        powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
+
     - name: Disconnect share
       raw: |
         net use \\10.64.105.105\mostafa /delete /y
