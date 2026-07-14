@@ -1,5 +1,5 @@
 ---
-- name: Copy, Install, and Remove Software
+- name: Copy and Install Avro Keyboard
   hosts: windows_10
   gather_facts: false
 
@@ -12,63 +12,14 @@
       raw: |
         net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
 
-    # ============================================
-    # Adobe Reader Installation
-    # ============================================
-    - name: Check Adobe Reader source file
+    - name: Copy installer
       raw: |
-        powershell.exe -NoProfile -Command "Test-Path '\\10.64.105.105\mostafa\AdbeRdr11010_en_US.exe'"
-      register: check_adobe
+        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -Destination 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
 
-    - name: Copy Adobe Reader installer
+    - name: Install Avro Keyboard
       raw: |
-        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\AdbeRdr11010_en_US.exe' -Destination 'C:\temp\AdbeRdr11010_en_US.exe' -Force"
-      when: check_adobe.stdout == "True"
+        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
 
-    - name: Install Adobe Reader
+    - name: Disconnect share
       raw: |
-        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\AdbeRdr11010_en_US.exe' -ArgumentList '/sAll /rs /msi /quiet' -Wait"
-      register: install_adobe
-      when: check_adobe.stdout == "True"
-
-    - name: Remove Adobe Reader installer
-      raw: |
-        powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\AdbeRdr11010_en_US.exe' -Force"
-      when: check_adobe.stdout == "True"
-
-    # ============================================
-    # WinRAR Installation (Copy all files)
-    # ============================================
-    - name: Create WinRAR temp folder
-      raw: |
-        powershell.exe -NoProfile -Command "New-Item -ItemType Directory -Path 'C:\temp\winrar' -Force"
-
-    - name: Copy all WinRAR files from share
-      raw: |
-        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\winrar\*' -Destination 'C:\temp\winrar\' -Recurse -Force"
-      register: copy_winrar
-
-    - name: Install WinRAR
-      raw: |
-        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\winrar\winrar-x64-621.exe' -ArgumentList '/s' -Wait"
-      register: install_winrar
-
-    - name: Remove WinRAR installer and files
-      raw: |
-        powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\winrar' -Force -Recurse"
-      register: remove_winrar
-
-    # ============================================
-    # Cleanup
-    # ============================================
-    - name: Disconnect from share
-      raw: |
-        net use \\10.64.105.105\mostafa /delete
-      ignore_errors: yes
-
-    - name: Installation complete
-      debug:
-        msg: 
-          - "Adobe Reader installed (RC: {{ install_adobe.rc }})"
-          - "WinRAR installed (RC: {{ install_winrar.rc }})"
-          - "Temp folder C:\temp preserved"
+        net use \\10.64.105.105\mostafa /delete /y
