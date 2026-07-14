@@ -1,14 +1,20 @@
 ---
-- name: Test network share access
+- name: Test installer
   hosts: windows_10
   gather_facts: false
 
   tasks:
-    - name: Show current user
-      raw: whoami
+    - name: Run Avro installer
+      raw: >
+        powershell.exe -NoProfile -Command
+        "& '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' /VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
+      register: avro
 
-    - name: Test share access
-      raw: powershell.exe -Command "Test-Path '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe'"
+    - debug:
+        var: avro.stdout
 
-    - name: List share contents
-      raw: powershell.exe -Command "Get-ChildItem '\\10.64.105.105\mostafa\Bangla'"
+    - debug:
+        var: avro.stderr
+
+    - debug:
+        var: avro.rc
