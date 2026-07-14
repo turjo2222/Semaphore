@@ -6,11 +6,9 @@
   tasks:
     - name: Map network drive
       raw: net use Z: \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD /persistent:no
-      register: map_drive
 
     - name: Install Avro Keyboard
       raw: cmd /c start /wait "" "Z:\Bangla\setup_avrokeyboard_5.6.0.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
-      register: install_result
 
     - name: Remove mapped drive
       raw: net use Z: /delete
@@ -18,4 +16,4 @@
 
     - name: Show result
       debug:
-        msg: "Installation completed with RC: {{ install_result.rc }}"
+        msg: "Installation completed"
