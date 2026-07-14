@@ -4,7 +4,7 @@
   gather_facts: false
 
   tasks:
-    - name: Map network drive Z:
+    - name: Map network drive Z
       raw: |
         net use Z: \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD /persistent:no
       register: map_drive
