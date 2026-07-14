@@ -1,5 +1,5 @@
 ---
-- name: Copy and Install Avro Keyboard and WinRAR
+- name: Install Avro Keyboard, Bijoy 52, and WinRAR
   hosts: windows_10
   gather_facts: false
 
@@ -12,7 +12,9 @@
       raw: |
         net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
 
+    # =========================
     # Install Avro Keyboard
+    # =========================
     - name: Copy Avro installer
       raw: |
         powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -Destination 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
@@ -25,7 +27,24 @@
       raw: |
         powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
 
+    # =========================
+    # Install Bijoy 52
+    # =========================
+    - name: Copy Bijoy 52 folder
+      raw: |
+        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\Bangla\Bijoy52 2016by sn\*' -Destination 'C:\temp\Bijoy52' -Recurse -Force"
+
+    - name: Install Bijoy 52
+      raw: |
+        powershell.exe -NoProfile -Command "Start-Process 'msiexec.exe' -ArgumentList '/i C:\temp\Bijoy52\Bijoy_Bayanno.msi /qn /norestart' -Wait"
+
+    - name: Remove Bijoy 52 folder
+      raw: |
+        powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\Bijoy52' -Recurse -Force"
+
+    # =========================
     # Install WinRAR
+    # =========================
     - name: Copy WinRAR folder
       raw: |
         powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\winrar\*' -Destination 'C:\temp\winrar' -Recurse -Force"
