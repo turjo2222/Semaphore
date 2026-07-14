@@ -36,7 +36,7 @@
 
     - name: Install Bijoy 52
       raw: |
-        powershell.exe -NoProfile -Command "Start-Process 'msiexec.exe' -ArgumentList '/i C:\temp\Bijoy_Bayanno.msi /qn /norestart' -Wait"
+        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\AdbeRdr11010_en_US.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
 
     - name: Remove Bijoy 52 installer
       raw: |
