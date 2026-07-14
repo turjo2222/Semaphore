@@ -1,5 +1,5 @@
 ---
-- name: Install Avro Keyboard, Adobe, and WinRAR
+- name: Install Avro Keyboard, Adobe Reader, and WinRAR
   hosts: windows_10
   gather_facts: false
 
