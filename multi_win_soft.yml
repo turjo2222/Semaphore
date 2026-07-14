@@ -1,19 +1,14 @@
 ---
-- name: Install Avro Keyboard and Adobe Reader
+- name: Test network share access
   hosts: windows_10
   gather_facts: false
 
   tasks:
-    - name: Install Avro Keyboard
-      raw: >
-        powershell.exe -NoProfile -ExecutionPolicy Bypass -Command
-        "Start-Process -FilePath '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe'
-        -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
-        -Wait"
+    - name: Show current user
+      raw: whoami
 
-    - name: Install Adobe Reader
-      raw: >
-        powershell.exe -NoProfile -ExecutionPolicy Bypass -Command
-        "Start-Process -FilePath '\\10.64.105.105\mostafa\AdbeRdr11010_en_US.exe'
-        -ArgumentList '/sAll /rs /rps /msi EULA_ACCEPT=YES'
-        -Wait"
+    - name: Test share access
+      raw: powershell.exe -Command "Test-Path '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe'"
+
+    - name: List share contents
+      raw: powershell.exe -Command "Get-ChildItem '\\10.64.105.105\mostafa\Bangla'"
