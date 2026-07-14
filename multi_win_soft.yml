@@ -1,5 +1,5 @@
 ---
-- name: Copy and Install Avro Keyboard
+- name: Copy and Install Avro Keyboard and WinRAR
   hosts: windows_10
   gather_facts: false
 
@@ -12,7 +12,8 @@
       raw: |
         net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
 
-    - name: Copy installer
+    # Install Avro Keyboard
+    - name: Copy Avro installer
       raw: |
         powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -Destination 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
 
@@ -20,9 +21,22 @@
       raw: |
         powershell.exe -NoProfile -Command "Start-Process 'C:\temp\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
 
-    - name: Remove installer
+    - name: Remove Avro installer
       raw: |
         powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
+
+    # Install WinRAR
+    - name: Copy WinRAR folder
+      raw: |
+        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\winrar\*' -Destination 'C:\temp\winrar' -Recurse -Force"
+
+    - name: Install WinRAR
+      raw: |
+        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\winrar\winrar-x64-621.exe' -ArgumentList '/S' -Wait"
+
+    - name: Remove WinRAR folder
+      raw: |
+        powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\winrar' -Recurse -Force"
 
     - name: Disconnect share
       raw: |
