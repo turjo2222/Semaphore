@@ -1,28 +1,35 @@
 ---
-- name: Install Avro Keyboard from Network Share
+- name: Install Avro Keyboard
   hosts: windows_10
   gather_facts: false
 
   tasks:
-    - name: Connect to network share
+    - name: Map network drive Z:
       raw: |
-        net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
-      register: net_use_result
+        net use Z: \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD /persistent:no
+      register: map_drive
 
-    - name: Verify installer exists on share
+    - name: Verify mapped drive
       raw: |
-        powershell.exe -NoProfile -Command "Test-Path '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe'"
-      register: check_file
+        dir Z:\
+      register: verify_drive
+      failed_when: false
 
-    - name: Display verification
+    - name: Show drive content
       debug:
-        msg: "Installer exists: {{ check_file.stdout }}"
+        var: verify_drive.stdout
 
-    - name: Install Avro Keyboard directly from network share
+    - name: Install from mapped drive
       raw: |
-        powershell.exe -NoProfile -Command "Start-Process '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
+        start /wait "" "Z:\Bangla\setup_avrokeyboard_5.6.0.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
       register: install_result
 
-    - name: Show installation result
+    - name: Disconnect mapped drive
+      raw: |
+        net use Z: /delete
+      register: disconnect
+      ignore_errors: yes
+
+    - name: Installation complete
       debug:
-        var: install_result.stdout
+        msg: "Installation completed"
