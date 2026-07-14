@@ -4,32 +4,22 @@
   gather_facts: false
 
   tasks:
-    - name: Map network drive Z
+    - name: Map network drive
       raw: |
-        net use Z: \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD /persistent:no
+        powershell.exe -NoProfile -Command "New-PSDrive -Name 'Z' -PSProvider FileSystem -Root '\\10.64.105.105\mostafa' -Persist -Scope Global"
       register: map_drive
-
-    - name: Verify mapped drive
-      raw: |
-        dir Z:\
-      register: verify_drive
       failed_when: false
 
-    - name: Show drive content
-      debug:
-        var: verify_drive.stdout
-
-    - name: Install from mapped drive
+    - name: Install Avro Keyboard
       raw: |
-        start /wait "" "Z:\Bangla\setup_avrokeyboard_5.6.0.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+        powershell.exe -NoProfile -Command "Start-Process -FilePath 'Z:\Bangla\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
       register: install_result
 
-    - name: Disconnect mapped drive
+    - name: Remove mapped drive
       raw: |
-        net use Z: /delete
-      register: disconnect
+        powershell.exe -NoProfile -Command "Remove-PSDrive -Name 'Z' -Force"
       ignore_errors: yes
 
     - name: Installation complete
       debug:
-        msg: "Installation completed"
+        msg: "Avro Keyboard installation completed"
