@@ -1,1 +1,17 @@
+---
+- name: Install Avro Keyboard and Adobe Reader
+  hosts: windows_10
+  gather_facts: false
 
+  tasks:
+    - name: Connect to share
+      raw: |
+        net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
+
+    - name: Install Avro Keyboard
+      raw: |
+        powershell.exe -NoProfile -Command "Start-Process '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
+
+    - name: Install Adobe Reader
+      raw: |
+        powershell.exe -NoProfile -Command "Start-Process '\\10.64.105.105\mostafa\AdbeRdr11010_en_US.exe' -ArgumentList '/sAll /rs /rps /msi EULA_ACCEPT=YES' -Wait"
