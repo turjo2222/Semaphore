@@ -1,20 +1,17 @@
 ---
-- name: Test installer
+- name: Install Avro Keyboard and Adobe Reader
   hosts: windows_10
   gather_facts: false
 
   tasks:
-    - name: Run Avro installer
+    - name: Install Avro Keyboard directly from share
       raw: >
-        powershell.exe -NoProfile -Command
-        "& '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' /VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
-      register: avro
+        powershell -Command
+        "& '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe'
+        /VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
 
-    - debug:
-        var: avro.stdout
-
-    - debug:
-        var: avro.stderr
-
-    - debug:
-        var: avro.rc
+    - name: Install Adobe Reader directly from share
+      raw: >
+        powershell -Command
+        "& '\\10.64.105.105\mostafa\AdbeRdr11010_en_US.exe'
+        /sAll /rs /rps /msi EULA_ACCEPT=YES"
