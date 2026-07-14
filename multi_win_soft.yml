@@ -16,20 +16,16 @@
     - name: Install Avro Keyboard
       raw: >
         powershell.exe -NoProfile -ExecutionPolicy Bypass -Command
-        "$p = Start-Process
-        '{{ share_path }}\Bangla\setup_avrokeyboard_5.6.0.exe'
+        "Start-Process '{{ share_path }}\Bangla\setup_avrokeyboard_5.6.0.exe'
         -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
-        -Wait -PassThru;
-        exit $p.ExitCode"
+        -Wait"
 
     - name: Install Adobe Reader
       raw: >
         powershell.exe -NoProfile -ExecutionPolicy Bypass -Command
-        "$p = Start-Process
-        '{{ share_path }}\AdbeRdr11010_en_US.exe'
+        "Start-Process '{{ share_path }}\AdbeRdr11010_en_US.exe'
         -ArgumentList '/sAll /rs /rps /msi EULA_ACCEPT=YES'
-        -Wait -PassThru;
-        exit $p.ExitCode"
+        -Wait"
 
     - name: Disconnect network share
       raw: >
