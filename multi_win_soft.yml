@@ -1,19 +1,64 @@
 ---
-- name: Install Avro Keyboard
+- name: Copy, Install, and Remove Avro Keyboard
   hosts: windows_10
   gather_facts: false
 
   tasks:
-    - name: Map network drive
-      raw: net use Z: \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD /persistent:no
+
+    - name: Create temp folder
+      raw: |
+        powershell.exe -NoProfile -Command "New-Item -ItemType Directory -Path 'C:\temp' -Force"
+
+    - name: Connect to share
+      raw: |
+        net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
+
+    - name: Check source file
+      raw: |
+        powershell.exe -NoProfile -Command "Test-Path '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe'"
+      register: check
+
+    - name: Show check
+      debug:
+        var: check.stdout
+
+    - name: Copy file
+      raw: |
+        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -Destination 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
 
     - name: Install Avro Keyboard
-      raw: cmd /c start /wait "" "Z:\Bangla\setup_avrokeyboard_5.6.0.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+      raw: |
+        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
 
-    - name: Remove mapped drive
-      raw: net use Z: /delete
+    - name: Verify installer exists
+      raw: |
+        powershell.exe -NoProfile -Command "Test-Path 'C:\temp\setup_avrokeyboard_5.6.0.exe'"
+      register: installer
+
+    - name: Show installer status
+      debug:
+        var: installer.stdout
+
+    - name: Remove installer file
+      raw: |
+        powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
+      register: remove_file
+
+    - name: Show removal status
+      debug:
+        msg: "Installer removed successfully"
+
+    - name: Disconnect from share
+      raw: |
+        net use \\10.64.105.105\mostafa /delete
       ignore_errors: yes
 
-    - name: Show result
+    - name: Remove temp folder
+      raw: |
+        powershell.exe -NoProfile -Command "Remove-Item 'C:\temp' -Force -Recurse"
+      register: remove_temp
+      ignore_errors: yes
+
+    - name: Installation complete
       debug:
-        msg: "Installation completed"
+        msg: "Avro Keyboard installation completed and cleanup done"
