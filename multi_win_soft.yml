@@ -5,50 +5,24 @@
 
   tasks:
     - name: Connect to network share
-      win_shell: |
+      raw: |
         net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
-      register: net_use
-      failed_when: false
+      register: net_use_result
 
-    - name: Check if net use succeeded
+    - name: Verify installer exists on share
+      raw: |
+        powershell.exe -NoProfile -Command "Test-Path '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe'"
+      register: check_file
+
+    - name: Display verification
       debug:
-        msg: "Network share connected"
+        msg: "Installer exists: {{ check_file.stdout }}"
 
-    - name: Check if installer exists on share
-      win_shell: |
-        if (Test-Path '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe') {
-            Write-Output "EXISTS"
-        } else {
-            Write-Output "NOTFOUND"
-        }
-      register: installer_check
-
-    - name: Fail if installer not found
-      fail:
-        msg: "Installer not found on network share"
-      when: "'NOTFOUND' in installer_check.stdout"
-
-    - name: Install Avro Keyboard directly from network
-      win_shell: |
-        $installer = '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe'
-        $arguments = '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
-        Start-Process -FilePath $installer -ArgumentList $arguments -Wait
-        Write-Output "Installation completed"
+    - name: Install Avro Keyboard directly from network share
+      raw: |
+        powershell.exe -NoProfile -Command "Start-Process '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
       register: install_result
 
     - name: Show installation result
       debug:
         var: install_result.stdout
-
-    - name: Verify installation
-      win_shell: |
-        if (Test-Path 'C:\Program Files\Avro Keyboard\Avro Keyboard.exe') {
-            Write-Output "Avro Keyboard installed successfully"
-        } else {
-            Write-Output "Avro Keyboard installation not found"
-        }
-      register: verify_install
-
-    - name: Show verification
-      debug:
-        var: verify_install.stdout
