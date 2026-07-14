@@ -28,11 +28,11 @@
         powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
 
     # =========================
-    # Install Bijoy 52
+    # Adobe Reader
     # =========================
-    - name: Copy Bijoy 52 installer
+    - name: Copy Adobe Reader installer
       raw: |
-        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\Bangla\Bijoy52 2016by sn\Bijoy_Bayanno.msi' -Destination 'C:\temp\Bijoy_Bayanno.msi' -Force"
+        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\AdbeRdr11010_en_US.exe' -Destination 'C:\temp\AdbeRdr11010_en_US.exe' -Force"
 
     - name: Install Bijoy 52
       raw: |
@@ -40,7 +40,7 @@
 
     - name: Remove Bijoy 52 installer
       raw: |
-        powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\Bijoy_Bayanno.msi' -Force"
+        powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\AdbeRdr11010_en_US.exe' -Force"
 
     # =========================
     # Install WinRAR
