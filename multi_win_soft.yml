@@ -1,28 +1,28 @@
 ---
-- name: Install Software Directly from Share
+- name: Install Avro Keyboard directly from network share
   hosts: windows_10
   gather_facts: false
 
   tasks:
-    - name: Test Avro installer file access
-      raw: >
-        powershell -Command "Test-Path '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe'"
-      register: avro_file
 
-    - name: Show Avro file check
-      debug:
-        var: avro_file.stdout
+    - name: Connect to network share
+      raw: |
+        net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
+      ignore_errors: yes
 
-    - name: Install Avro Keyboard
-      raw: >
-        powershell -Command
-        "Start-Process -FilePath '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe'
-        -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
-        -Wait"
+    - name: Verify installer exists
+      raw: |
+        powershell.exe -NoProfile -Command "Test-Path '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe'"
+      register: installer
 
-    - name: Install Adobe Reader
-      raw: >
-        powershell -Command
-        "Start-Process -FilePath '\\10.64.105.105\mostafa\AdbeRdr11010_en_US.exe'
-        -ArgumentList '/sAll /rs /rps /msi EULA_ACCEPT=YES'
-        -Wait"
+    - debug:
+        var: installer.stdout
+
+    - name: Install Avro Keyboard directly from share
+      raw: |
+        powershell.exe -NoProfile -Command "Start-Process -FilePath '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/S' -Wait"
+
+    - name: Disconnect network share
+      raw: |
+        net use \\10.64.105.105\mostafa /delete /y
+      ignore_errors: yes
