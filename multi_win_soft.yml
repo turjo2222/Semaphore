@@ -1,5 +1,5 @@
 ---
-- name: Install Avro Keyboard, Bijoy 52, and WinRAR
+- name: Install Avro Keyboard, Adobe, and WinRAR
   hosts: windows_10
   gather_facts: false
 
