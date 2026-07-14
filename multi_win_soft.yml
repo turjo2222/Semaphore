@@ -3,15 +3,34 @@
   hosts: windows_10
   gather_facts: false
 
+  vars:
+    share_path: "\\\\10.64.105.105\\mostafa"
+    share_user: "SHARE_USER"
+    share_password: "SHARE_PASSWORD"
+
   tasks:
-    - name: Connect to share
-      raw: |
-        net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
+    - name: Connect to network share
+      raw: >
+        net use {{ share_path }} /user:{{ share_user }} {{ share_password }}
 
     - name: Install Avro Keyboard
-      raw: |
-        powershell.exe -NoProfile -Command "Start-Process '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
+      raw: >
+        powershell.exe -NoProfile -ExecutionPolicy Bypass -Command
+        "$p = Start-Process
+        '{{ share_path }}\Bangla\setup_avrokeyboard_5.6.0.exe'
+        -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
+        -Wait -PassThru;
+        exit $p.ExitCode"
 
     - name: Install Adobe Reader
-      raw: |
-        powershell.exe -NoProfile -Command "Start-Process '\\10.64.105.105\mostafa\AdbeRdr11010_en_US.exe' -ArgumentList '/sAll /rs /rps /msi EULA_ACCEPT=YES' -Wait"
+      raw: >
+        powershell.exe -NoProfile -ExecutionPolicy Bypass -Command
+        "$p = Start-Process
+        '{{ share_path }}\AdbeRdr11010_en_US.exe'
+        -ArgumentList '/sAll /rs /rps /msi EULA_ACCEPT=YES'
+        -Wait -PassThru;
+        exit $p.ExitCode"
+
+    - name: Disconnect network share
+      raw: >
+        net use {{ share_path }} /delete /y
