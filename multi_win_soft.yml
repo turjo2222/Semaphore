@@ -27,18 +27,19 @@
       raw: |
         powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
 
+  
     # =========================
-    # Adobe Reader
+    # Install Adobe Reader
     # =========================
     - name: Copy Adobe Reader installer
       raw: |
         powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\AdbeRdr11010_en_US.exe' -Destination 'C:\temp\AdbeRdr11010_en_US.exe' -Force"
 
-    - name: Install Bijoy 52
+    - name: Install Adobe Reader
       raw: |
-        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\AdbeRdr11010_en_US.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
+        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\AdbeRdr11010_en_US.exe' -ArgumentList '/sAll /rs /rps /msi /norestart /quiet' -Wait"
 
-    - name: Remove Bijoy 52 installer
+    - name: Remove Adobe Reader installer
       raw: |
         powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\AdbeRdr11010_en_US.exe' -Force"
 
