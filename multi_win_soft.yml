@@ -1,28 +1,32 @@
 ---
-- name: Install Avro Keyboard directly from network share
+- name: Install Avro Keyboard from Network Share
   hosts: windows_10
   gather_facts: false
 
   tasks:
-
     - name: Connect to network share
       raw: |
         net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
-      ignore_errors: yes
+      register: net_use_result
+      
+    - name: Show connection result
+      debug:
+        var: net_use_result.stdout
 
-    - name: Verify installer exists
+    - name: Verify installer exists on share
       raw: |
         powershell.exe -NoProfile -Command "Test-Path '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe'"
-      register: installer
+      register: check_file
 
-    - debug:
-        var: installer.stdout
+    - name: Show verification
+      debug:
+        msg: "Installer exists: {{ check_file.stdout }}"
 
-    - name: Install Avro Keyboard directly from share
+    - name: Install Avro Keyboard directly from network share
       raw: |
-        powershell.exe -NoProfile -Command "Start-Process -FilePath '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/S' -Wait"
+        powershell.exe -NoProfile -Command "Start-Process '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
+      register: install_result
 
-    - name: Disconnect network share
-      raw: |
-        net use \\10.64.105.105\mostafa /delete /y
-      ignore_errors: yes
+    - name: Show installation result
+      debug:
+        var: install_result.stdout
