@@ -1,7 +1,10 @@
 ---
-- name: Install Avro Keyboard, Adobe Reader, and WinRAR
+- name: Install Avro Keyboard
   hosts: windows_10
   gather_facts: false
+
+  collections:
+    - ansible.windows
 
   tasks:
 
@@ -44,7 +47,6 @@
         state: absent
 
 
-
     # =========================
     # Disconnect Share
     # =========================
@@ -52,3 +54,4 @@
     - name: Disconnect share
       ansible.windows.win_command: >
         net use \\10.64.105.105\mostafa /delete
+      failed_when: false
