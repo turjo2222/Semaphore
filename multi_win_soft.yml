@@ -1,63 +1,20 @@
 ---
-- name: Install Avro Keyboard, Adobe Reader, and WinRAR
+- name: Copy Avro installer using robocopy
   hosts: windows_10
   gather_facts: false
 
   tasks:
+
     - name: Create temp folder
-      raw: |
-        powershell.exe -NoProfile -Command "New-Item -ItemType Directory -Path 'C:\temp' -Force"
+      ansible.windows.win_file:
+        path: C:\temp
+        state: directory
 
-    - name: Connect to share
-      raw: |
-        net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
-
-    # =========================
-    # Install Avro Keyboard
-    # =========================
     - name: Copy Avro installer
-      raw: |
-        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe' -Destination 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
-
-    - name: Install Avro Keyboard
-      raw: |
-        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
-
-    - name: Remove Avro installer
-      raw: |
-        powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\setup_avrokeyboard_5.6.0.exe' -Force"
-
-  
-    # =========================
-    # Install Adobe Reader
-    # =========================
-    - name: Copy Adobe Reader installer
-      raw: |
-        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\AdbeRdr11010_en_US.exe' -Destination 'C:\temp\AdbeRdr11010_en_US.exe' -Force"
-
-    - name: Install Adobe Reader
-      raw: |
-        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\AdbeRdr11010_en_US.exe' -ArgumentList '/sAll /rs /rps /msi /norestart /quiet' -Wait"
-
-    - name: Remove Adobe Reader installer
-      raw: |
-        powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\AdbeRdr11010_en_US.exe' -Force"
-
-    # =========================
-    # Install WinRAR
-    # =========================
-    - name: Copy WinRAR folder
-      raw: |
-        powershell.exe -NoProfile -Command "Copy-Item '\\10.64.105.105\mostafa\winrar\*' -Destination 'C:\temp\winrar' -Recurse -Force"
-
-    - name: Install WinRAR
-      raw: |
-        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\winrar\winrar-x64-621.exe' -ArgumentList '/S' -Wait"
-
-    - name: Remove WinRAR folder
-      raw: |
-        powershell.exe -NoProfile -Command "Remove-Item 'C:\temp\winrar' -Recurse -Force"
-
-    - name: Disconnect share
-      raw: |
-        net use \\10.64.105.105\mostafa /delete /y
+      community.windows.win_robocopy:
+        src: "\\10.64.105.105\mostafa\Bangla"
+        dest: "C:\temp"
+        files:
+          - "setup_avrokeyboard_5.6.0.exe"
+        retries: 3
+        wait: 5
