@@ -52,7 +52,7 @@
     - name: Copy installers using Robocopy
       ansible.windows.win_command: >
         cmd /c "net use \\10.64.105.105\mostafa /user:Guest "" &&
-        robocopy {{ item.item.src }} {{ destination }} {{ item.item.file }} /R:3 /W:5 /MT:16"
+        robocopy {{ item.item.src }} {{ destination }} {{ item.item.file }} /R:3 /W:5 /MT:8"
       loop: "{{ software_status.results }}"
       loop_control:
         label: "{{ item.item.name }}"
