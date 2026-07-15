@@ -1,12 +1,11 @@
 ---
-- name: Install Avro Keyboard using Robocopy
+- name: Copy Avro installer using Robocopy
   hosts: windows_10
   gather_facts: false
 
   vars:
     share: '\\10.64.120.50\ict'
-    source_path: '\\10.64.120.50\ict\Mostafa\Bangla'
-    share_user: 'ict'
+    share_user: '10.64.120.50\ict'
     share_password: 'i@t@123'
 
   tasks:
@@ -16,53 +15,32 @@
         path: 'C:\temp'
         state: directory
 
-    - name: Remove existing SMB connections
+    - name: Remove old SMB connections
       ansible.windows.win_shell: |
         net use * /delete /y
       ignore_errors: yes
 
     - name: Connect SMB share
       ansible.windows.win_shell: |
-        net use "{{ share }}" /user:{{ share_user }} "{{ share_password }}"
-      no_log: true
-
-    - name: Verify SMB access
-      ansible.windows.win_shell: |
-        dir "{{ source_path }}"
-      register: smb_check
-
-    - name: Show SMB files
-      debug:
-        var: smb_check.stdout
+        net use "{{ share }}" /user:"{{ share_user }}" "{{ share_password }}"
 
     - name: Copy Avro installer using Robocopy
       community.windows.win_robocopy:
-        src: '{{ source_path }}'
+        src: '\\10.64.120.50\ict\Mostafa\Bangla'
         dest: 'C:\temp'
         files:
           - 'setup_avrokeyboard_5.6.0.exe'
         retries: 3
         wait: 5
 
-    - name: Check copied installer
+    - name: Verify copied file
       ansible.windows.win_stat:
         path: 'C:\temp\setup_avrokeyboard_5.6.0.exe'
       register: avro_file
 
-    - name: Show installer status
+    - name: Show copy status
       debug:
         var: avro_file.stat.exists
-
-    - name: Install Avro Keyboard
-      ansible.windows.win_shell: |
-        Start-Process 'C:\temp\setup_avrokeyboard_5.6.0.exe' `
-        -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' `
-        -Wait
-
-    - name: Remove Avro installer
-      ansible.windows.win_file:
-        path: 'C:\temp\setup_avrokeyboard_5.6.0.exe'
-        state: absent
 
     - name: Disconnect SMB share
       ansible.windows.win_shell: |
