@@ -3,83 +3,67 @@
   hosts: windows_10
   gather_facts: false
 
-  collections:
-    - community.windows
-    - ansible.windows
-
   tasks:
+
     - name: Create temp folder
-      ansible.windows.win_file:
-        path: C:\temp
-        state: directory
+      raw: |
+        powershell.exe -NoProfile -Command "New-Item -ItemType Directory -Path 'C:\temp' -Force"
 
-    - name: Connect to network share
-      ansible.windows.win_command: >
-        net use \\10.64.105.105\mostafa
-        /user:SHARE_USER SHARE_PASSWORD
+    - name: Connect to share
+      raw: |
+        net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
 
     # =========================
-    # Avro Keyboard
+    # Install Avro Keyboard
     # =========================
-    - name: Copy Avro installer
-      community.windows.win_robocopy:
-        src: "\\\\10.64.105.105\\mostafa\\Bangla"
-        dest: "C:\\temp"
-        files:
-          - setup_avrokeyboard_5.6.0.exe
+
+    - name: Copy Avro installer using Robocopy
+      raw: |
+        robocopy "\\10.64.105.105\mostafa\Bangla" "C:\temp" setup_avrokeyboard_5.6.0.exe /R:3 /W:5
 
     - name: Install Avro Keyboard
-      ansible.windows.win_package:
-        path: C:\temp\setup_avrokeyboard_5.6.0.exe
-        arguments: "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
-        state: present
+      raw: |
+        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\setup_avrokeyboard_5.6.0.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait"
 
     - name: Remove Avro installer
-      ansible.windows.win_file:
-        path: C:\temp\setup_avrokeyboard_5.6.0.exe
-        state: absent
+      raw: |
+        del /F /Q C:\temp\setup_avrokeyboard_5.6.0.exe
+
 
     # =========================
-    # Adobe Reader
+    # Install Adobe Reader
     # =========================
-    - name: Copy Adobe Reader installer
-      community.windows.win_robocopy:
-        src: "\\\\10.64.105.105\\mostafa"
-        dest: "C:\\temp"
-        files:
-          - AdbeRdr11010_en_US.exe
+
+    - name: Copy Adobe Reader installer using Robocopy
+      raw: |
+        robocopy "\\10.64.105.105\mostafa" "C:\temp" AdbeRdr11010_en_US.exe /R:3 /W:5
 
     - name: Install Adobe Reader
-      ansible.windows.win_package:
-        path: C:\temp\AdbeRdr11010_en_US.exe
-        arguments: "/sAll /rs /rps /msi /norestart /quiet"
-        state: present
+      raw: |
+        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\AdbeRdr11010_en_US.exe' -ArgumentList '/sAll /rs /rps /msi /norestart /quiet' -Wait"
 
     - name: Remove Adobe Reader installer
-      ansible.windows.win_file:
-        path: C:\temp\AdbeRdr11010_en_US.exe
-        state: absent
+      raw: |
+        del /F /Q C:\temp\AdbeRdr11010_en_US.exe
+
 
     # =========================
-    # WinRAR
+    # Install WinRAR
     # =========================
-    - name: Copy WinRAR files
-      community.windows.win_robocopy:
-        src: "\\\\10.64.105.105\\mostafa\\winrar"
-        dest: "C:\\temp\\winrar"
-        recurse: true
+
+    - name: Copy WinRAR folder using Robocopy
+      raw: |
+        robocopy "\\10.64.105.105\mostafa\winrar" "C:\temp\winrar" /E /R:3 /W:5
 
     - name: Install WinRAR
-      ansible.windows.win_package:
-        path: C:\temp\winrar\winrar-x64-621.exe
-        arguments: "/S"
-        state: present
+      raw: |
+        powershell.exe -NoProfile -Command "Start-Process 'C:\temp\winrar\winrar-x64-621.exe' -ArgumentList '/S' -Wait"
 
     - name: Remove WinRAR folder
-      ansible.windows.win_file:
-        path: C:\temp\winrar
-        state: absent
+      raw: |
+        rmdir /S /Q C:\temp\winrar
 
-    - name: Disconnect network share
-      ansible.windows.win_command: >
+
+    - name: Disconnect share
+      raw: |
         net use \\10.64.105.105\mostafa /delete
