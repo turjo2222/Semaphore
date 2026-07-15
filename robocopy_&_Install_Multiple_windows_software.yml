@@ -1,18 +1,19 @@
 ---
 - name: Copy and install multiple software
-  hosts: windows_10
+  hosts: windows
   gather_facts: false
 
   vars:
-    source_share: '\\10.64.105.105\mostafa'
     destination: 'C:\Temp'
 
     software_list:
       - name: Avro Keyboard
+        src: '\\10.64.105.105\mostafa\Bangla'
         file: 'setup_avrokeyboard_5.6.0.exe'
         install_cmd: 'C:\Temp\setup_avrokeyboard_5.6.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
 
       - name: Adobe Reader
+        src: '\\10.64.105.105\mostafa'
         file: 'AdbeRdr11010_en_US.exe'
         install_cmd: 'C:\Temp\AdbeRdr11010_en_US.exe /sAll /rs /msi EULA_ACCEPT=YES'
 
@@ -23,23 +24,24 @@
         path: '{{ destination }}'
         state: directory
 
-    - name: Copy software installers using Robocopy
+    - name: Copy installers using Robocopy
       ansible.windows.win_command: >
         cmd /c "net use \\10.64.105.105\mostafa /user:Guest "" &&
-        robocopy {{ source_share }} {{ destination }} {{ item.file }} /R:3 /W:5"
+        robocopy {{ item.src }} {{ destination }} {{ item.file }} /R:3 /W:5"
       loop: '{{ software_list }}'
       loop_control:
         label: '{{ item.name }}'
-      register: robocopy_result
-      failed_when: robocopy_result.rc > 7
+      register: copy_result
+      failed_when: copy_result.rc > 7
+
+    - name: Verify installers copied
+      ansible.windows.win_stat:
+        path: '{{ destination }}\{{ item.file }}'
+      loop: '{{ software_list }}'
+      register: file_check
 
     - name: Install software
       ansible.windows.win_command: '{{ item.install_cmd }}'
       loop: '{{ software_list }}'
       loop_control:
         label: '{{ item.name }}'
-      register: install_result
-
-    - name: Show installation results
-      ansible.builtin.debug:
-        var: install_result.results
