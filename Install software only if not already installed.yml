@@ -3,50 +3,54 @@
 # Installation Policy and Conditions
 # ==========================================================
 #
-# Policy 1:
-# Check Windows Registry first to verify whether software
-# is already installed.
+# Policy 1: Software Detection
+#   - Check Windows Registry before installation.
+#   - Detect both 64-bit and 32-bit applications.
 #
-# Policy 2:
-# If software is already installed:
-#   - Skip copy
-#   - Skip installation
-#   - Do not modify existing installation
+# Policy 2: Existing Software
+#   - If software is already installed:
+#       * Skip copy.
+#       * Skip installation.
+#       * Keep existing installation unchanged.
 #
-# Policy 3:
-# If software is NOT installed:
-#   - Create C:\Temp if it does not exist
-#   - Copy installer from network share
-#   - Verify installer file exists
-#   - Run silent installation command
-#   - Remove installer file after installation
+# Policy 3: New Software Installation
+#   - If software is missing:
+#       * Create C:\Temp if not exist.
+#       * Copy installer from network share.
+#       * Verify installer exists.
+#       * Install silently.
+#       * Remove installer after installation.
 #
-# Policy 4:
-# Installation will only run when:
-#   - Software is missing from the system
-#   - Installer file exists in C:\Temp
+# Policy 4: Installation Conditions
+#   Installation runs only when:
+#       * Software is not installed.
+#       * Installer file exists in C:\Temp.
 #
-# Policy 5:
-# Robocopy exit codes 0-7 are considered successful.
-# Only exit codes greater than 7 will fail the task.
+# Policy 5: Robocopy
+#   - Exit code 0-7 = Success/acceptable.
+#   - Exit code >7 = Failure.
 #
-# Policy 6:
-# Software detection checks both:
-#   - 64-bit Windows uninstall registry
-#   - 32-bit application uninstall registry
+# Policy 6: Cleanup
+#   - Remove installer files after installation.
+#
+# Policy 7: Idempotent Execution
+#   - Playbook can run multiple times safely.
+#   - Installed software will not be reinstalled.
 #
 # ==========================================================
 
-
-# Playbook: Install software only if not already installed
 
 - name: Copy and install multiple software
   hosts: windows_10
   gather_facts: false
 
   vars:
+
+    # Local temporary folder
     destination: 'C:\Temp'
 
+
+    # Software installation list
     software_list:
 
       - name: Avro Keyboard
@@ -54,6 +58,7 @@
         src: '\\10.64.105.105\mostafa\Bangla'
         file: 'setup_avrokeyboard_5.6.0.exe'
         install_cmd: 'C:\Temp\setup_avrokeyboard_5.6.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
+
 
       - name: Adobe Reader
         display_name: 'Adobe Reader'
@@ -64,7 +69,8 @@
 
   tasks:
 
-    # Create C:\Temp folder if missing
+
+    # Create C:\Temp if missing
     - name: Create destination folder
       ansible.windows.win_file:
         path: "{{ destination }}"
@@ -72,7 +78,7 @@
 
 
     # Check if software already installed
-    - name: Check if software is already installed
+    - name: Check installed software
       ansible.windows.win_shell: |
         $app = Get-ItemProperty `
           HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*, `
@@ -81,23 +87,26 @@
           Where-Object { $_.DisplayName -like "*{{ item.display_name }}*" }
 
         if ($app) {
-          Write-Output "Installed"
+            Write-Output "Installed"
         }
 
       loop: "{{ software_list }}"
       loop_control:
         label: "{{ item.name }}"
+
       register: software_status
       changed_when: false
 
 
-    # Copy installer only when software is not installed
+
+    # Copy installer only when software is missing
     - name: Copy installers using Robocopy
       ansible.windows.win_command: >
-        cmd /c "net use \\10.64.105.105\mostafa /user:Guest "" &&
-        robocopy {{ item.item.src }} {{ destination }} {{ item.item.file }} /R:3 /W:5 /MT:8"
+        robocopy "{{ item.item.src }}" "{{ destination }}"
+        "{{ item.item.file }}" /R:3 /W:5 /MT:8
 
       loop: "{{ software_status.results }}"
+
       loop_control:
         label: "{{ item.item.name }}"
 
@@ -105,15 +114,18 @@
         - "'Installed' not in item.stdout"
 
       register: copy_result
+
       failed_when: copy_result.rc > 7
 
 
-    # Check installer exists before installation
+
+    # Verify installer exists
     - name: Verify installer exists
       ansible.windows.win_stat:
         path: "{{ destination }}\\{{ item.item.file }}"
 
       loop: "{{ software_status.results }}"
+
       loop_control:
         label: "{{ item.item.name }}"
 
@@ -123,11 +135,13 @@
         - "'Installed' not in item.stdout"
 
 
+
     # Install only when installer exists
     - name: Install software
       ansible.windows.win_command: "{{ item.item.install_cmd }}"
 
       loop: "{{ installer_check.results }}"
+
       loop_control:
         label: "{{ item.item.name }}"
 
@@ -135,13 +149,15 @@
         - item.stat.exists
 
 
-    # Remove installer after successful installation
+
+    # Remove installer after installation
     - name: Remove installers from Temp
       ansible.windows.win_file:
         path: "{{ destination }}\\{{ item.item.file }}"
         state: absent
 
       loop: "{{ installer_check.results }}"
+
       loop_control:
         label: "{{ item.item.name }}"
 
