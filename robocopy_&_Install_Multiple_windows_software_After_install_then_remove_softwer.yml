@@ -1,17 +1,23 @@
 ---
+# Playbook: Copy installers from a network share, install them silently,
+# and remove the installer files after installation.
 - name: Copy and install multiple software
   hosts: windows_10
   gather_facts: false
 
   vars:
+    # Local temporary folder where installers will be copied
     destination: 'C:\Temp'
 
+    # List of software packages to install
     software_list:
+      # Avro Keyboard
       - name: Avro Keyboard
         src: '\\10.64.105.105\mostafa\Bangla'
         file: 'setup_avrokeyboard_5.6.0.exe'
         install_cmd: 'C:\Temp\setup_avrokeyboard_5.6.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
 
+      # Adobe Reader
       - name: Adobe Reader
         src: '\\10.64.105.105\mostafa'
         file: 'AdbeRdr11010_en_US.exe'
@@ -19,11 +25,13 @@
 
   tasks:
 
+    # Create the destination folder if it doesn't already exist
     - name: Create destination folder
       ansible.windows.win_file:
         path: '{{ destination }}'
         state: directory
 
+    # Map the network share and copy each installer using Robocopy
     - name: Copy installers using Robocopy
       ansible.windows.win_command: >
         cmd /c "net use \\10.64.105.105\mostafa /user:Guest "" &&
@@ -32,20 +40,24 @@
       loop_control:
         label: '{{ item.name }}'
       register: copy_result
+      # Robocopy exit codes 0-7 indicate success or acceptable conditions
       failed_when: copy_result.rc > 7
 
+    # Verify that each installer was copied successfully
     - name: Verify installers copied
       ansible.windows.win_stat:
         path: '{{ destination }}\{{ item.file }}'
       loop: '{{ software_list }}'
       register: file_check
 
+    # Run the silent installation command for each software package
     - name: Install software
       ansible.windows.win_command: '{{ item.install_cmd }}'
       loop: '{{ software_list }}'
       loop_control:
         label: '{{ item.name }}'
 
+    # Delete installer files after installation to free disk space
     - name: Remove installers from Temp
       ansible.windows.win_file:
         path: '{{ destination }}\{{ item.file }}'
