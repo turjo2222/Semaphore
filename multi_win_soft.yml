@@ -4,7 +4,8 @@
   gather_facts: false
 
   vars:
-    share: "\\\\10.64.120.50\ict\Mostafa\Bangla"
+    share: "\\\\10.64.120.50\\ict"
+    source_folder: "Mostafa\\Bangla"
     share_user: "ict"
     share_password: "i@t@123"
 
@@ -27,7 +28,7 @@
 
     - name: Copy Avro installer with Robocopy
       ansible.windows.win_shell: |
-        robocopy "{{ share }}\Bangla" "C:\temp" "setup_avrokeyboard_5.6.0.exe" /R:3 /W:5
+        robocopy "{{ share }}\{{ source_folder }}" "C:\temp" "setup_avrokeyboard_5.6.0.exe" /R:3 /W:5
       register: robocopy_result
       failed_when: robocopy_result.rc >= 8
 
