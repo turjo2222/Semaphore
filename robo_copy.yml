@@ -1,49 +1,70 @@
 ---
-- name: Copy Avro installer using community.windows.win_robocopy
+- name: Install Avro Keyboard using Robocopy
   hosts: windows_10
   gather_facts: false
 
   vars:
-    share: "\\\\10.64.120.50\\ict"
-    source: "\\\\10.64.120.50\\ict\\Mostafa\\Bangla"
-    share_user: "ict"
-    share_password: "i@t@123"
+    share: '\\10.64.120.50\ict'
+    source_path: '\\10.64.120.50\ict\Mostafa\Bangla'
+    share_user: 'ict'
+    share_password: 'i@t@123'
 
   tasks:
 
     - name: Create temp folder
       ansible.windows.win_file:
-        path: C:\temp
+        path: 'C:\temp'
         state: directory
 
-    - name: Remove existing SMB connection
+    - name: Remove existing SMB connections
       ansible.windows.win_shell: |
         net use * /delete /y
       ignore_errors: yes
 
     - name: Connect SMB share
       ansible.windows.win_shell: |
-        net use {{ share }} /user:{{ share_user }} "{{ share_password }}"
+        net use "{{ share }}" /user:{{ share_user }} "{{ share_password }}"
+      no_log: true
+
+    - name: Verify SMB access
+      ansible.windows.win_shell: |
+        dir "{{ source_path }}"
+      register: smb_check
+
+    - name: Show SMB files
+      debug:
+        var: smb_check.stdout
 
     - name: Copy Avro installer using Robocopy
       community.windows.win_robocopy:
-        src: "{{ source }}"
-        dest: "C:\temp"
+        src: '{{ source_path }}'
+        dest: 'C:\temp'
         files:
-          - setup_avrokeyboard_5.6.0.exe
+          - 'setup_avrokeyboard_5.6.0.exe'
         retries: 3
         wait: 5
 
-    - name: Verify copied file
+    - name: Check copied installer
       ansible.windows.win_stat:
-        path: C:\temp\setup_avrokeyboard_5.6.0.exe
+        path: 'C:\temp\setup_avrokeyboard_5.6.0.exe'
       register: avro_file
 
-    - name: Show copy result
+    - name: Show installer status
       debug:
         var: avro_file.stat.exists
 
+    - name: Install Avro Keyboard
+      ansible.windows.win_shell: |
+        Start-Process 'C:\temp\setup_avrokeyboard_5.6.0.exe' `
+        -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' `
+        -Wait
+
+    - name: Remove Avro installer
+      ansible.windows.win_file:
+        path: 'C:\temp\setup_avrokeyboard_5.6.0.exe'
+        state: absent
+
     - name: Disconnect SMB share
       ansible.windows.win_shell: |
-        net use {{ share }} /delete /y
+        net use "{{ share }}" /delete /y
       ignore_errors: yes
