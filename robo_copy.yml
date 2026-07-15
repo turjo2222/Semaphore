@@ -1,6 +1,6 @@
 ---
 - name: Copy file from guest SMB share using Robocopy
-  hosts: windows_10
+  hosts: windows
   gather_facts: false
 
   tasks:
@@ -10,30 +10,36 @@
         path: 'C:\Temp'
         state: directory
 
-    - name: Clear existing SMB sessions
+    - name: Remove existing SMB connections
       ansible.windows.win_command: >
         net use * /delete /y
       failed_when: false
 
-    - name: Connect to guest SMB share
+    - name: Map SMB guest share
       ansible.windows.win_command: >
-        net use \\10.64.105.105\mostafa /user:Guest ""
-      register: smb_connect
-      failed_when: false
+        net use Z: \\10.64.105.105\mostafa /user:Guest ""
+      register: map_result
 
-    - name: Show SMB connection result
+    - name: Show mapping result
       ansible.builtin.debug:
-        var: smb_connect.stdout_lines
+        var: map_result.stdout_lines
 
-    - name: Copy file using Robocopy
+    - name: Test mapped drive
       ansible.windows.win_command: >
-        robocopy "\\10.64.105.105\mostafa\Bangla"
-        "C:\Temp"
-        "setup_avrokeyboard_5.6.0.exe"
-        /R:3 /W:5
+        dir Z:\Bangla
+      register: dir_result
+
+    - name: Show directory
+      ansible.builtin.debug:
+        var: dir_result.stdout_lines
+
+    - name: Copy installer with Robocopy
+      ansible.windows.win_command: >
+        robocopy Z:\Bangla C:\Temp setup_avrokeyboard_5.6.0.exe /R:3 /W:5
       register: robocopy_result
       failed_when: robocopy_result.rc > 7
 
-    - name: Show Robocopy output
-      ansible.builtin.debug:
-        var: robocopy_result.stdout_lines
+    - name: Remove mapped drive
+      ansible.windows.win_command: >
+        net use Z: /delete
+      failed_when: false
