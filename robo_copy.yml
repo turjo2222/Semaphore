@@ -1,22 +1,30 @@
 ---
 - name: Copy Avro installer
-  hosts: windows_10
+  hosts: windows
   gather_facts: false
 
   tasks:
-    - name: Create temp directory
+
+    - name: Create C:\temp folder
       ansible.windows.win_file:
         path: C:\temp
         state: directory
 
-    - name: Copy installer from share
+    - name: Check source file access
       ansible.windows.win_shell: |
-        robocopy "\\10.64.105.105\mostafa\Bangla" "C:\temp" setup_avrokeyboard_5.6.0.exe /R:3 /W:5
+        Test-Path "\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe"
+      register: source_check
+
+    - name: Show source check
+      debug:
+        var: source_check.stdout
+
+    - name: Copy installer using robocopy
+      ansible.windows.win_shell: |
+        robocopy "\\10.64.105.105\mostafa\Bangla" "C:\temp" "setup_avrokeyboard_5.6.0.exe" /R:3 /W:5
       register: copy_result
       failed_when: copy_result.rc >= 8
 
-    - name: Install Avro Keyboard
-      ansible.windows.win_package:
-        path: C:\temp\setup_avrokeyboard_5.6.0.exe
-        arguments: /S
-        state: present
+    - name: Show robocopy result
+      debug:
+        var: copy_result.stdout
