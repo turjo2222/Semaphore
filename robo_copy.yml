@@ -1,18 +1,24 @@
 ---
-- name: Copy Avro Keyboard installer from Windows share
-  hosts: windows_10
+- name: Copy Avro Keyboard installer using Robocopy
+  hosts: windows
   gather_facts: false
 
   tasks:
-    - name: Copy file with Robocopy
-      ansible.windows.win_command: >
-        robocopy "\\10.64.105.105\mostafa\Bangla"
-        "C:\Temp"
-        "setup_avrokeyboard_5.6.0.exe"
-        /R:3 /W:5
-      register: robocopy
 
-    - name: Fail if Robocopy failed
-      ansible.builtin.fail:
-        msg: "Robocopy failed with exit code {{ robocopy.rc }}"
-      when: robocopy.rc > 7
+    - name: Ensure destination folder exists
+      ansible.windows.win_file:
+        path: C:\Temp
+        state: directory
+
+    - name: Copy Avro installer from SMB share
+      community.windows.win_robocopy:
+        src: "\\10.64.105.105\mostafa\Bangla"
+        dest: "C:\Temp"
+        files:
+          - "setup_avrokeyboard_5.6.0.exe"
+        recurse: false
+      register: robocopy_result
+
+    - name: Show Robocopy result
+      ansible.builtin.debug:
+        var: robocopy_result
