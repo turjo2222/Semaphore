@@ -48,6 +48,7 @@
     destination: 'C:\Temp'
 
     software_list:
+
       - name: Avro Keyboard
         display_name: 'Avro Keyboard'
         src: '\\10.64.105.105\mostafa\Bangla'
@@ -60,15 +61,17 @@
         file: 'AdbeRdr11010_en_US.exe'
         install_cmd: 'C:\Temp\AdbeRdr11010_en_US.exe /sAll /rs /msi EULA_ACCEPT=YES'
 
+
   tasks:
 
-    # Create C:\Temp if it does not exist
+    # Create C:\Temp folder if missing
     - name: Create destination folder
       ansible.windows.win_file:
         path: "{{ destination }}"
         state: directory
 
-    # Check if software already exists
+
+    # Check if software already installed
     - name: Check if software is already installed
       ansible.windows.win_shell: |
         $app = Get-ItemProperty `
@@ -80,52 +83,67 @@
         if ($app) {
           Write-Output "Installed"
         }
+
       loop: "{{ software_list }}"
       loop_control:
         label: "{{ item.name }}"
       register: software_status
       changed_when: false
 
-    # Copy installer only when software is missing
+
+    # Copy installer only when software is not installed
     - name: Copy installers using Robocopy
       ansible.windows.win_command: >
         cmd /c "net use \\10.64.105.105\mostafa /user:Guest "" &&
         robocopy {{ item.item.src }} {{ destination }} {{ item.item.file }} /R:3 /W:5 /MT:8"
+
       loop: "{{ software_status.results }}"
       loop_control:
         label: "{{ item.item.name }}"
+
       when:
         - "'Installed' not in item.stdout"
+
       register: copy_result
       failed_when: copy_result.rc > 7
 
-    # Verify installer exists before installation
+
+    # Check installer exists before installation
     - name: Verify installer exists
       ansible.windows.win_stat:
-        path: "{{ destination }}\{{ item.item.file }}"
+        path: "{{ destination }}\\{{ item.item.file }}"
+
       loop: "{{ software_status.results }}"
       loop_control:
         label: "{{ item.item.name }}"
+
       register: installer_check
+
       when:
         - "'Installed' not in item.stdout"
 
-    # Install only if installer exists
+
+    # Install only when installer exists
     - name: Install software
       ansible.windows.win_command: "{{ item.item.install_cmd }}"
+
       loop: "{{ installer_check.results }}"
       loop_control:
         label: "{{ item.item.name }}"
+
       when:
         - item.stat.exists
 
-    # Remove installer after installation
+
+    # Remove installer after successful installation
     - name: Remove installers from Temp
       ansible.windows.win_file:
-        path: "{{ destination }}\{{ item.item.file }}"
+        path: "{{ destination }}\\{{ item.item.file }}"
         state: absent
+
       loop: "{{ installer_check.results }}"
       loop_control:
         label: "{{ item.item.name }}"
+
       when:
         - item.stat.exists
