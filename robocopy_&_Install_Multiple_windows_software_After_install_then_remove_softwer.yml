@@ -1,76 +1,55 @@
 ---
-# Playbook: Copy, install, and clean up multiple software packages
 - name: Copy and install multiple software
   hosts: windows_10
   gather_facts: false
 
   vars:
-    # Temporary folder on the target Windows machine
-    destination: C:\Temp
+    destination: 'C:\Temp'
 
-    # List of software to copy and install
     software_list:
       - name: Avro Keyboard
         src: '\\10.64.105.105\mostafa\Bangla'
-        file: setup_avrokeyboard_5.6.0.exe
+        file: 'setup_avrokeyboard_5.6.0.exe'
         install_cmd: 'C:\Temp\setup_avrokeyboard_5.6.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
 
       - name: Adobe Reader
         src: '\\10.64.105.105\mostafa'
-        file: AdbeRdr11010_en_US.exe
+        file: 'AdbeRdr11010_en_US.exe'
         install_cmd: 'C:\Temp\AdbeRdr11010_en_US.exe /sAll /rs /msi EULA_ACCEPT=YES'
 
   tasks:
 
-    # Create the temporary directory if it does not exist
     - name: Create destination folder
       ansible.windows.win_file:
-        path: "{{ destination }}"
+        path: '{{ destination }}'
         state: directory
 
-    # Connect to the network share
-    - name: Connect to network share
-      ansible.windows.win_command: >
-        cmd /c net use \\10.64.105.105\mostafa /user:Guest ""
-      changed_when: false
-
-    # Copy each installer from the network share to C:\Temp
     - name: Copy installers using Robocopy
       ansible.windows.win_command: >
-        robocopy "{{ item.src }}" "{{ destination }}" "{{ item.file }}" /R:3 /W:5 /MT:8
-      loop: "{{ software_list }}"
+        cmd /c "net use \\10.64.105.105\mostafa /user:Guest "" &&
+        robocopy {{ item.src }} {{ destination }} {{ item.file }} /R:3 /W:5 /MT:8"
+      loop: '{{ software_list }}'
       loop_control:
-        label: "{{ item.name }}"
-      register: robocopy_result
-      failed_when: robocopy_result.rc > 7
+        label: '{{ item.name }}'
+      register: copy_result
+      failed_when: copy_result.rc > 7
 
-    # Verify that each installer was copied successfully
     - name: Verify installers copied
       ansible.windows.win_stat:
-        path: "{{ destination }}\\{{ item.file }}"
-      loop: "{{ software_list }}"
-      register: installer_files
+        path: '{{ destination }}\{{ item.file }}'
+      loop: '{{ software_list }}'
+      register: file_check
 
-    # Install each application only if its installer exists
     - name: Install software
-      ansible.windows.win_command: "{{ item.item.install_cmd }}"
-      loop: "{{ installer_files.results }}"
+      ansible.windows.win_command: '{{ item.install_cmd }}'
+      loop: '{{ software_list }}'
       loop_control:
-        label: "{{ item.item.name }}"
-      when: item.stat.exists
+        label: '{{ item.name }}'
 
-    # Remove installer files after successful installation
     - name: Remove installers from Temp
       ansible.windows.win_file:
-        path: "{{ destination }}\\{{ item.item.file }}"
+        path: '{{ destination }}\{{ item.file }}'
         state: absent
-      loop: "{{ installer_files.results }}"
+      loop: '{{ software_list }}'
       loop_control:
-        label: "{{ item.item.name }}"
-      when: item.stat.exists
-
-    # Disconnect the network share
-    - name: Disconnect network share
-      ansible.windows.win_command: >
-        cmd /c net use \\10.64.105.105\mostafa /delete /y
-      changed_when: false
+        label: '{{ item.name }}'
