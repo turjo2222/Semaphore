@@ -5,43 +5,45 @@
 #
 # Policy 1: Software Detection
 #   - Check Windows Registry before installation.
-#   - Detect both 64-bit and 32-bit applications.
+#   - Detect both 64-bit and 32-bit installed applications.
 #
-# Policy 2: Existing Software
+# Policy 2: Existing Software Handling
 #   - If software is already installed:
 #       * Skip installer copy.
 #       * Skip installation.
-#       * Keep existing installation unchanged.
+#       * Keep existing software unchanged.
 #
-# Policy 3: Network Share Access
-#   - Connect to the software repository before copying.
-#   - Authenticate to the network share.
-#   - Verify source access before Robocopy execution.
-#
-# Policy 4: New Software Installation
-#   - If software is missing:
+# Policy 3: New Software Installation
+#   - If software is not installed:
 #       * Create C:\Temp if it does not exist.
-#       * Connect to network share.
-#       * Copy installer from network share.
-#       * Verify installer exists.
-#       * Install silently.
+#       * Connect to network software share.
+#       * Copy installer using Robocopy.
+#       * Verify installer file exists.
+#       * Run silent installation command.
 #       * Remove installer after installation.
 #
+# Policy 4: Network Share Access
+#   - Authenticate to the software repository before copying.
+#   - Use configured share access permissions.
+#   - Ensure source folder is accessible before copying.
+#
 # Policy 5: Installation Conditions
-#   Installation runs only when:
-#       * Software is not installed.
+#   Software installation will run only when:
+#       * Software is not found in Windows Registry.
 #       * Installer file exists in C:\Temp.
 #
-# Policy 6: Robocopy
-#   - Exit code 0-7  = Success/acceptable result.
-#   - Exit code >7  = Copy failure.
+# Policy 6: Robocopy Handling
+#   - Robocopy exit codes 0-7 are treated as successful.
+#   - Robocopy exit codes greater than 7 are treated as failure.
 #
 # Policy 7: Cleanup
-#   - Remove installer files after installation.
+#   - Delete installer files from C:\Temp after installation.
+#   - Keep only the installed applications.
 #
 # Policy 8: Idempotent Execution
-#   - Playbook can run multiple times safely.
-#   - Already installed software will not be reinstalled.
+#   - Playbook can run repeatedly without reinstalling software.
+#   - Already installed software will be skipped.
+#   - Missing software will be installed automatically.
 #
 # ==========================================================
 
@@ -50,11 +52,9 @@
   hosts: windows_10
   gather_facts: false
 
-
   vars:
 
     destination: 'C:\Temp'
-
 
     software_list:
 
@@ -63,7 +63,6 @@
         src: '\\10.64.105.105\mostafa\Bangla'
         file: 'setup_avrokeyboard_5.6.0.exe'
         install_cmd: 'C:\Temp\setup_avrokeyboard_5.6.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
-
 
       - name: Adobe Reader
         display_name: 'Adobe Reader'
@@ -74,8 +73,7 @@
 
   tasks:
 
-
-    # Create C:\Temp if missing
+    # Create C:\Temp folder if missing
     - name: Create destination folder
       ansible.windows.win_file:
         path: "{{ destination }}"
@@ -103,22 +101,11 @@
       changed_when: false
 
 
-
-    # Connect to network share before Robocopy
-    - name: Connect to software share
-      ansible.windows.win_command: >
-        cmd /c "net use \\10.64.105.105\mostafa /user:Guest """"
-      changed_when: false
-
-
-
-    # Copy only missing software installers
+    # Copy installer only if software is missing
     - name: Copy installers using Robocopy
       ansible.windows.win_command: >
-        robocopy "{{ item.item.src }}"
-        "{{ destination }}"
-        "{{ item.item.file }}"
-        /R:3 /W:5 /MT:8
+        cmd /c "net use \\10.64.105.105\mostafa /user:Guest "" &&
+        robocopy {{ item.item.src }} {{ destination }} {{ item.item.file }} /R:3 /W:5 /MT:8"
 
       loop: "{{ software_status.results }}"
 
@@ -133,8 +120,7 @@
       failed_when: copy_result.rc > 7
 
 
-
-    # Verify installer exists before installation
+    # Verify installer exists
     - name: Verify installers copied
       ansible.windows.win_stat:
         path: "{{ destination }}\\{{ item.item.file }}"
@@ -144,25 +130,23 @@
       loop_control:
         label: "{{ item.item.name }}"
 
-      register: installer_check
+      register: file_check
 
       when:
         - "'Installed' not in item.stdout"
 
 
-
-    # Install only when installer exists
+    # Install only if installer exists
     - name: Install software
       ansible.windows.win_command: "{{ item.item.install_cmd }}"
 
-      loop: "{{ installer_check.results }}"
+      loop: "{{ file_check.results }}"
 
       loop_control:
         label: "{{ item.item.name }}"
 
       when:
         - item.stat.exists
-
 
 
     # Remove installer after installation
@@ -171,18 +155,10 @@
         path: "{{ destination }}\\{{ item.item.file }}"
         state: absent
 
-      loop: "{{ installer_check.results }}"
+      loop: "{{ file_check.results }}"
 
       loop_control:
         label: "{{ item.item.name }}"
 
       when:
         - item.stat.exists
-
-
-
-    # Disconnect network share
-    - name: Disconnect software share
-      ansible.windows.win_command: >
-        cmd /c "net use \\10.64.105.105\mostafa /delete /y"
-      changed_when: false
