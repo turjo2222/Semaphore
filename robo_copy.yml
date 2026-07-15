@@ -7,15 +7,15 @@
 
     - name: Ensure destination folder exists
       ansible.windows.win_file:
-        path: C:\Temp
+        path: 'C:\Temp'
         state: directory
 
     - name: Copy Avro installer from SMB share
       community.windows.win_robocopy:
-        src: "\\10.64.105.105\mostafa\Bangla"
-        dest: "C:\Temp"
+        src: '\\10.64.105.105\mostafa\Bangla'
+        dest: 'C:\Temp'
         files:
-          - "setup_avrokeyboard_5.6.0.exe"
+          - 'setup_avrokeyboard_5.6.0.exe'
         recurse: false
       register: robocopy_result
 
