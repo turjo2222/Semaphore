@@ -1,6 +1,6 @@
 ---
 - name: Copy and install multiple software
-  hosts: windows
+  hosts: windows_10
   gather_facts: false
 
   vars:
