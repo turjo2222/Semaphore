@@ -1,0 +1,27 @@
+---
+- name: Copy and install Avro Keyboard
+  hosts: windows
+  gather_facts: false
+
+  tasks:
+
+    - name: Create destination folder
+      ansible.windows.win_file:
+        path: 'C:\Temp'
+        state: directory
+
+    - name: Copy installer from SMB share using Robocopy
+      ansible.windows.win_command: >
+        cmd /c "net use \\10.64.105.105\mostafa /user:Guest "" &&
+        robocopy \\10.64.105.105\mostafa\Bangla C:\Temp setup_avrokeyboard_5.6.0.exe /R:3 /W:5"
+      register: robocopy_result
+      failed_when: robocopy_result.rc > 7
+
+    - name: Install Avro Keyboard silently
+      ansible.windows.win_command: >
+        C:\Temp\setup_avrokeyboard_5.6.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+      register: install_result
+
+    - name: Show installation result
+      ansible.builtin.debug:
+        var: install_result
