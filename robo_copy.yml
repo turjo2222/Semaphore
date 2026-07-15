@@ -1,0 +1,85 @@
+---
+- name: Install Avro Keyboard, Adobe Reader, and WinRAR
+  hosts: windows_10
+  gather_facts: false
+
+  collections:
+    - community.windows
+    - ansible.windows
+
+  tasks:
+    - name: Create temp folder
+      ansible.windows.win_file:
+        path: C:\temp
+        state: directory
+
+    - name: Connect to network share
+      ansible.windows.win_command: >
+        net use \\10.64.105.105\mostafa
+        /user:SHARE_USER SHARE_PASSWORD
+
+    # =========================
+    # Avro Keyboard
+    # =========================
+    - name: Copy Avro installer
+      community.windows.win_robocopy:
+        src: "\\\\10.64.105.105\\mostafa\\Bangla"
+        dest: "C:\\temp"
+        files:
+          - setup_avrokeyboard_5.6.0.exe
+
+    - name: Install Avro Keyboard
+      ansible.windows.win_package:
+        path: C:\temp\setup_avrokeyboard_5.6.0.exe
+        arguments: "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
+        state: present
+
+    - name: Remove Avro installer
+      ansible.windows.win_file:
+        path: C:\temp\setup_avrokeyboard_5.6.0.exe
+        state: absent
+
+    # =========================
+    # Adobe Reader
+    # =========================
+    - name: Copy Adobe Reader installer
+      community.windows.win_robocopy:
+        src: "\\\\10.64.105.105\\mostafa"
+        dest: "C:\\temp"
+        files:
+          - AdbeRdr11010_en_US.exe
+
+    - name: Install Adobe Reader
+      ansible.windows.win_package:
+        path: C:\temp\AdbeRdr11010_en_US.exe
+        arguments: "/sAll /rs /rps /msi /norestart /quiet"
+        state: present
+
+    - name: Remove Adobe Reader installer
+      ansible.windows.win_file:
+        path: C:\temp\AdbeRdr11010_en_US.exe
+        state: absent
+
+    # =========================
+    # WinRAR
+    # =========================
+    - name: Copy WinRAR files
+      community.windows.win_robocopy:
+        src: "\\\\10.64.105.105\\mostafa\\winrar"
+        dest: "C:\\temp\\winrar"
+        recurse: true
+
+    - name: Install WinRAR
+      ansible.windows.win_package:
+        path: C:\temp\winrar\winrar-x64-621.exe
+        arguments: "/S"
+        state: present
+
+    - name: Remove WinRAR folder
+      ansible.windows.win_file:
+        path: C:\temp\winrar
+        state: absent
+
+    - name: Disconnect network share
+      ansible.windows.win_command: >
+        net use \\10.64.105.105\mostafa /delete
