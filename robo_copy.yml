@@ -1,9 +1,30 @@
 ---
-- name: Copy Avro installer using Robocopy
+- name: Test SMB then Robocopy
   hosts: windows_10
   gather_facts: false
 
+  vars:
+    smb_server: "10.64.120.50"
+    smb_share: "ict"
+    smb_path: "\\\\10.64.120.50\\ict\\Mostafa\\Bangla"
+    smb_user: "ict"
+    smb_password: "i@t@123"
+
   tasks:
+
+    - name: Remove old SMB sessions
+      ansible.windows.win_shell: |
+        net use * /delete /y
+      ignore_errors: yes
+
+    - name: Connect SMB share
+      ansible.windows.win_shell: |
+        net use \\{{ smb_server }}\{{ smb_share }} /user:{{ smb_server }}\{{ smb_user }} "{{ smb_password }}"
+      no_log: true
+
+    - name: Test SMB access
+      ansible.windows.win_shell: |
+        dir "{{ smb_path }}"
 
     - name: Create temp folder
       ansible.windows.win_file:
@@ -12,16 +33,23 @@
 
     - name: Copy Avro installer using Robocopy
       community.windows.win_robocopy:
-        src: '\\10.64.120.50\ict\Mostafa\Bangla'
+        src: "{{ smb_path }}"
         dest: 'C:\temp'
         files:
           - 'setup_avrokeyboard_5.6.0.exe'
+        retries: 3
+        wait: 5
 
     - name: Verify copied file
       ansible.windows.win_stat:
         path: 'C:\temp\setup_avrokeyboard_5.6.0.exe'
       register: avro_file
 
-    - name: Show result
+    - name: Show copy status
       debug:
         var: avro_file.stat.exists
+
+    - name: Disconnect SMB share
+      ansible.windows.win_shell: |
+        net use \\{{ smb_server }}\{{ smb_share }} /delete /y
+      ignore_errors: yes
