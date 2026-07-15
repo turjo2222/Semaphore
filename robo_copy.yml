@@ -1,30 +1,22 @@
 ---
-- name: Copy Avro installer from SMB share
+- name: Copy Avro installer
   hosts: windows
-  gather_facts: no
+  gather_facts: false
 
-  vars:
-    share_path: "\\\\10.64.105.105\\mostafa"
   tasks:
-
     - name: Create temp directory
       ansible.windows.win_file:
         path: C:\temp
         state: directory
 
-    - name: Map network share
+    - name: Copy installer from share
       ansible.windows.win_shell: |
-        net use {{ share_path }} /user:{{ share_user }} "{{ share_password }}"
-      register: map_result
-      failed_when: map_result.rc != 0 and 'The command completed successfully' not in map_result.stdout
+        robocopy "\\10.64.105.105\mostafa\Bangla" "C:\temp" setup_avrokeyboard_5.6.0.exe /R:3 /W:5
+      register: copy_result
+      failed_when: copy_result.rc >= 8
 
-    - name: Copy installer
-      ansible.windows.win_shell: |
-        robocopy "{{ share_path }}\Bangla" "C:\temp" setup_avrokeyboard_5.6.0.exe /R:3 /W:5
-      register: robocopy_result
-      failed_when: robocopy_result.rc >= 8
-
-    - name: Disconnect network share
-      ansible.windows.win_shell: |
-        net use {{ share_path }} /delete /y
-      ignore_errors: yes
+    - name: Install Avro Keyboard
+      ansible.windows.win_package:
+        path: C:\temp\setup_avrokeyboard_5.6.0.exe
+        arguments: /S
+        state: present
