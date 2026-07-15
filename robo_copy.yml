@@ -1,30 +1,51 @@
 ---
-- name: Copy Avro installer
+- name: Copy Avro installer from open SMB share
   hosts: windows_10
   gather_facts: false
+
+  vars:
+    source_file: "\\\\10.64.105.105\\mostafa\\Bangla\\setup_avrokeyboard_5.6.0.exe"
+    source_dir: "\\\\10.64.105.105\\mostafa\\Bangla"
+    dest_dir: "C:\\temp"
 
   tasks:
 
     - name: Create C:\temp folder
       ansible.windows.win_file:
-        path: C:\temp
+        path: "{{ dest_dir }}"
         state: directory
 
-    - name: Check source file access
+    - name: Enable insecure guest SMB access
       ansible.windows.win_shell: |
-        Test-Path "\\10.64.105.105\mostafa\Bangla\setup_avrokeyboard_5.6.0.exe"
-      register: source_check
+        Set-SmbClientConfiguration -EnableInsecureGuestLogons $true -Force
+      register: smb_config
 
-    - name: Show source check
+    - name: Restart SMB client service
+      ansible.windows.win_service:
+        name: LanmanWorkstation
+        state: restarted
+
+    - name: Check SMB share access
+      ansible.windows.win_shell: |
+        Test-Path "{{ source_file }}"
+      register: share_test
+      changed_when: false
+
+    - name: Show SMB test result
       debug:
-        var: source_check.stdout
+        var: share_test.stdout
 
     - name: Copy installer using robocopy
       ansible.windows.win_shell: |
-        robocopy "\\10.64.105.105\mostafa\Bangla" "C:\temp" "setup_avrokeyboard_5.6.0.exe" /R:3 /W:5
-      register: copy_result
-      failed_when: copy_result.rc >= 8
+        robocopy "{{ source_dir }}" "{{ dest_dir }}" "setup_avrokeyboard_5.6.0.exe" /R:3 /W:5
+      register: robocopy_result
+      failed_when: robocopy_result.rc >= 8
 
-    - name: Show robocopy result
+    - name: Verify copied file
+      ansible.windows.win_stat:
+        path: "C:\\temp\\setup_avrokeyboard_5.6.0.exe"
+      register: copied_file
+
+    - name: Display copy result
       debug:
-        var: copy_result.stdout
+        var: copied_file.stat.exists
