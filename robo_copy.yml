@@ -1,9 +1,27 @@
 ---
-- name: Copy Avro installer
-  hosts: windows_10
+- name: Test SMB access and copy with Robocopy
+  hosts: windows
   gather_facts: false
 
   tasks:
+
+    - name: Check Ansible execution user
+      ansible.windows.win_command: whoami
+      register: whoami_result
+
+    - name: Display execution user
+      ansible.builtin.debug:
+        var: whoami_result.stdout
+
+    - name: Test SMB folder access
+      ansible.windows.win_command: >
+        cmd /c dir "\\10.64.105.105\mostafa\Bangla"
+      register: smb_test
+      failed_when: false
+
+    - name: Display SMB test result
+      ansible.builtin.debug:
+        var: smb_test.stdout_lines
 
     - name: Create destination folder
       ansible.windows.win_file:
@@ -17,12 +35,8 @@
         "setup_avrokeyboard_5.6.0.exe"
         /R:3 /W:5
       register: robocopy_result
+      failed_when: robocopy_result.rc > 7
 
-    - name: Check Robocopy result
+    - name: Show Robocopy result
       ansible.builtin.debug:
-        msg: "Robocopy exit code: {{ robocopy_result.rc }}"
-
-    - name: Fail on Robocopy error
-      ansible.builtin.fail:
-        msg: "Robocopy failed"
-      when: robocopy_result.rc > 7
+        var: robocopy_result.stdout_lines
