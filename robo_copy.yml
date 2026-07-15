@@ -1,6 +1,6 @@
 ---
 - name: Copy Avro Keyboard installer using Robocopy
-  hosts: windows
+  hosts: windows_10
   gather_facts: false
 
   tasks:
