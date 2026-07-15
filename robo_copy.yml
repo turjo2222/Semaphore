@@ -5,8 +5,8 @@
 
   vars:
     share: "\\\\10.64.105.105\\mostafa"
-    share_user: "SHARE_USER"
-    share_password: "SHARE_PASSWORD"
+    share_user: "mostafa"
+    share_password: "*"
 
   tasks:
 
