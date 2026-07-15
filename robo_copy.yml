@@ -26,10 +26,10 @@
 
     - name: Test mapped drive
       ansible.windows.win_command: >
-        dir Z:\Bangla
+        cmd /c dir Z:\Bangla
       register: dir_result
 
-    - name: Show directory
+    - name: Show mapped drive content
       ansible.builtin.debug:
         var: dir_result.stdout_lines
 
