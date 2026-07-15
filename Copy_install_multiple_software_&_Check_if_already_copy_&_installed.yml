@@ -1,0 +1,87 @@
+---
+# Playbook: Copy, install, and clean up multiple software packages
+# Skip software that is already installed.
+
+- name: Copy and install multiple software
+  hosts: windows_10
+  gather_facts: false
+
+  vars:
+    destination: 'C:\Temp'
+
+    software_list:
+      - name: Avro Keyboard
+        display_name: 'Avro Keyboard'
+        src: '\\10.64.105.105\mostafa\Bangla'
+        file: 'setup_avrokeyboard_5.6.0.exe'
+        install_cmd: 'C:\Temp\setup_avrokeyboard_5.6.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
+
+      - name: Adobe Reader
+        display_name: 'Adobe Reader'
+        src: '\\10.64.105.105\mostafa'
+        file: 'AdbeRdr11010_en_US.exe'
+        install_cmd: 'C:\Temp\AdbeRdr11010_en_US.exe /sAll /rs /msi EULA_ACCEPT=YES'
+
+  tasks:
+
+    # Create temporary folder
+    - name: Create destination folder
+      ansible.windows.win_file:
+        path: '{{ destination }}'
+        state: directory
+
+    # Check whether each software is already installed
+    - name: Check installed software
+      ansible.windows.win_shell: |
+        $app = Get-ItemProperty `
+          HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*, `
+          HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* `
+          -ErrorAction SilentlyContinue |
+          Where-Object { $_.DisplayName -like "*{{ item.display_name }}*" }
+
+        if ($app) {
+          Write-Output "Installed"
+        }
+      loop: "{{ software_list }}"
+      loop_control:
+        label: "{{ item.name }}"
+      register: software_status
+      changed_when: false
+
+    # Copy installer only if software is not installed
+    - name: Copy installers using Robocopy
+      ansible.windows.win_command: >
+        cmd /c "net use \\10.64.105.105\mostafa /user:Guest "" &&
+        robocopy {{ item.item.src }} {{ destination }} {{ item.item.file }} /R:3 /W:5 /MT:8"
+      loop: "{{ software_status.results }}"
+      loop_control:
+        label: "{{ item.item.name }}"
+      when: "'Installed' not in item.stdout"
+      register: copy_result
+      failed_when: copy_result.rc > 7
+
+    # Verify installer exists
+    - name: Verify installers copied
+      ansible.windows.win_stat:
+        path: "{{ destination }}\\{{ item.item.file }}"
+      loop: "{{ software_status.results }}"
+      register: file_check
+      when: "'Installed' not in item.stdout"
+
+    # Install only if not already installed
+    - name: Install software
+      ansible.windows.win_command: "{{ item.item.install_cmd }}"
+      loop: "{{ software_status.results }}"
+      loop_control:
+        label: "{{ item.item.name }}"
+      when: "'Installed' not in item.stdout"
+
+    # Remove installer after installation
+    - name: Remove installers from Temp
+      ansible.windows.win_file:
+        path: "{{ destination }}\\{{ item.item.file }}"
+        state: absent
+      loop: "{{ software_status.results }}"
+      loop_control:
+        label: "{{ item.item.name }}"
+      when: "'Installed' not in item.stdout"
