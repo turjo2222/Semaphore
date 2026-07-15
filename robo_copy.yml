@@ -13,6 +13,7 @@
       raw: |
         net use \\10.64.105.105\mostafa /user:SHARE_USER SHARE_PASSWORD
 
+
     # =========================
     # Install Avro Keyboard
     # =========================
@@ -20,6 +21,9 @@
     - name: Copy Avro installer using Robocopy
       raw: |
         robocopy "\\10.64.105.105\mostafa\Bangla" "C:\temp" setup_avrokeyboard_5.6.0.exe /R:3 /W:5
+      register: robocopy_avro
+      failed_when: robocopy_avro.rc >= 8
+      changed_when: robocopy_avro.rc > 0
 
     - name: Install Avro Keyboard
       raw: |
@@ -37,6 +41,9 @@
     - name: Copy Adobe Reader installer using Robocopy
       raw: |
         robocopy "\\10.64.105.105\mostafa" "C:\temp" AdbeRdr11010_en_US.exe /R:3 /W:5
+      register: robocopy_adobe
+      failed_when: robocopy_adobe.rc >= 8
+      changed_when: robocopy_adobe.rc > 0
 
     - name: Install Adobe Reader
       raw: |
@@ -54,6 +61,9 @@
     - name: Copy WinRAR folder using Robocopy
       raw: |
         robocopy "\\10.64.105.105\mostafa\winrar" "C:\temp\winrar" /E /R:3 /W:5
+      register: robocopy_winrar
+      failed_when: robocopy_winrar.rc >= 8
+      changed_when: robocopy_winrar.rc > 0
 
     - name: Install WinRAR
       raw: |
@@ -63,6 +73,10 @@
       raw: |
         rmdir /S /Q C:\temp\winrar
 
+
+    # =========================
+    # Disconnect Share
+    # =========================
 
     - name: Disconnect share
       raw: |
