@@ -1,6 +1,6 @@
 ---
 - name: Test SMB access and copy with Robocopy
-  hosts: windows
+  hosts: windows_10
   gather_facts: false
 
   tasks:
