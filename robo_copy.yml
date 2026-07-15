@@ -1,6 +1,6 @@
 ---
 - name: Copy Avro installer using guest SMB and Robocopy
-  hosts: windows
+  hosts: windows_10
   gather_facts: false
 
   tasks:
