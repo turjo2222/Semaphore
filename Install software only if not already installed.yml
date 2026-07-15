@@ -9,33 +9,39 @@
 #
 # Policy 2: Existing Software
 #   - If software is already installed:
-#       * Skip copy.
+#       * Skip installer copy.
 #       * Skip installation.
 #       * Keep existing installation unchanged.
 #
-# Policy 3: New Software Installation
+# Policy 3: Network Share Access
+#   - Connect to the software repository before copying.
+#   - Authenticate to the network share.
+#   - Verify source access before Robocopy execution.
+#
+# Policy 4: New Software Installation
 #   - If software is missing:
-#       * Create C:\Temp if not exist.
+#       * Create C:\Temp if it does not exist.
+#       * Connect to network share.
 #       * Copy installer from network share.
 #       * Verify installer exists.
 #       * Install silently.
 #       * Remove installer after installation.
 #
-# Policy 4: Installation Conditions
+# Policy 5: Installation Conditions
 #   Installation runs only when:
 #       * Software is not installed.
 #       * Installer file exists in C:\Temp.
 #
-# Policy 5: Robocopy
-#   - Exit code 0-7 = Success/acceptable.
-#   - Exit code >7 = Failure.
+# Policy 6: Robocopy
+#   - Exit code 0-7  = Success/acceptable result.
+#   - Exit code >7  = Copy failure.
 #
-# Policy 6: Cleanup
+# Policy 7: Cleanup
 #   - Remove installer files after installation.
 #
-# Policy 7: Idempotent Execution
+# Policy 8: Idempotent Execution
 #   - Playbook can run multiple times safely.
-#   - Installed software will not be reinstalled.
+#   - Already installed software will not be reinstalled.
 #
 # ==========================================================
 
@@ -44,13 +50,12 @@
   hosts: windows_10
   gather_facts: false
 
+
   vars:
 
-    # Local temporary folder
     destination: 'C:\Temp'
 
 
-    # Software installation list
     software_list:
 
       - name: Avro Keyboard
@@ -87,7 +92,7 @@
           Where-Object { $_.DisplayName -like "*{{ item.display_name }}*" }
 
         if ($app) {
-            Write-Output "Installed"
+          Write-Output "Installed"
         }
 
       loop: "{{ software_list }}"
@@ -99,11 +104,21 @@
 
 
 
-    # Copy installer only when software is missing
+    # Connect to network share before Robocopy
+    - name: Connect to software share
+      ansible.windows.win_command: >
+        cmd /c "net use \\10.64.105.105\mostafa /user:Guest """"
+      changed_when: false
+
+
+
+    # Copy only missing software installers
     - name: Copy installers using Robocopy
       ansible.windows.win_command: >
-        robocopy "{{ item.item.src }}" "{{ destination }}"
-        "{{ item.item.file }}" /R:3 /W:5 /MT:8
+        robocopy "{{ item.item.src }}"
+        "{{ destination }}"
+        "{{ item.item.file }}"
+        /R:3 /W:5 /MT:8
 
       loop: "{{ software_status.results }}"
 
@@ -119,8 +134,8 @@
 
 
 
-    # Verify installer exists
-    - name: Verify installer exists
+    # Verify installer exists before installation
+    - name: Verify installers copied
       ansible.windows.win_stat:
         path: "{{ destination }}\\{{ item.item.file }}"
 
@@ -163,3 +178,11 @@
 
       when:
         - item.stat.exists
+
+
+
+    # Disconnect network share
+    - name: Disconnect software share
+      ansible.windows.win_command: >
+        cmd /c "net use \\10.64.105.105\mostafa /delete /y"
+      changed_when: false
