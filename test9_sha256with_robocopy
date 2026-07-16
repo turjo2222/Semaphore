@@ -1,0 +1,181 @@
+###############################################################################
+# PART 1 - PRE-CHECK
+###############################################################################
+
+- name: Create Temp Folder
+  ansible.windows.win_file:
+    path: "{{ destination }}"
+    state: directory
+
+- name: Connect Network Share
+  ansible.windows.win_command: >
+    cmd /c net use \\10.64.105.105\mostafa /user:Guest ""
+  changed_when: false
+
+- name: Check Installed Software
+  ansible.windows.win_shell: |
+    $app = Get-ItemProperty `
+      HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*,`
+      HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* `
+      -ErrorAction SilentlyContinue |
+      Where-Object {
+        $_.DisplayName -like "*{{ item.display_name }}*"
+      }
+
+    if ($app) {
+      Write-Output "Installed"
+    }
+  loop: "{{ software_list }}"
+  register: software_status
+  changed_when: false
+###############################################################################
+# PART 2 - DISK SPACE CHECK
+###############################################################################
+
+- name: Calculate installer sizes
+  ansible.windows.win_shell: |
+    if (Test-Path "{{ item.item.src }}\{{ item.item.file }}") {
+      (Get-Item "{{ item.item.src }}\{{ item.item.file }}").Length
+    }
+    else {
+      0
+    }
+  loop: "{{ software_status.results }}"
+  when:
+    - item.item.method == "copy"
+    - "'Installed'" not in item.stdout
+  register: copy_sizes
+  changed_when: false
+
+- name: Calculate total required disk space
+  ansible.builtin.set_fact:
+    required_bytes: >-
+      {{
+        copy_sizes.results
+        | map(attribute='stdout')
+        | map('trim')
+        | map('int')
+        | sum
+      }}
+
+- name: Get C: drive free space
+  ansible.windows.win_shell: |
+    (Get-PSDrive C).Free
+  register: disk_free
+  changed_when: false
+
+- name: Fail if disk space is insufficient
+  ansible.builtin.fail:
+    msg: |
+      Required Space : {{ required_bytes }} Bytes
+      Available Space: {{ disk_free.stdout | trim }} Bytes
+      Deployment aborted due to insufficient free disk space.
+  when:
+    - required_bytes | int > ((disk_free.stdout | trim | int) - 2147483648)
+###############################################################################
+# PART 3 - COPY, VERIFY & INSTALL
+###############################################################################
+
+- name: Copy software using Robocopy
+  ansible.windows.win_command: >
+    robocopy "{{ item.item.src }}"
+    "{{ destination }}"
+    "{{ item.item.file }}"
+    /MT:16 /Z /R:3 /W:5 /NP
+  loop: "{{ software_status.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  when:
+    - item.item.method == "copy"
+    - "'Installed'" not in item.stdout
+  register: robocopy_result
+  failed_when: robocopy_result.rc > 7
+
+- name: Verify copied installer exists
+  ansible.windows.win_stat:
+    path: "{{ destination }}\{{ item.item.file }}"
+  loop: "{{ software_status.results }}"
+  when:
+    - item.item.method == "copy"
+    - "'Installed'" not in item.stdout
+  register: copied_files
+
+- name: Ensure installer was copied successfully
+  ansible.builtin.fail:
+    msg: "Failed to copy {{ item.item.file }}."
+  loop: "{{ copied_files.results }}"
+  when: not item.stat.exists
+
+- name: Verify installer SHA256 checksum
+  ansible.windows.win_shell: |
+    $actual = (Get-FileHash "{{ destination }}\{{ item.item.file }}" -Algorithm SHA256).Hash.ToUpper()
+    $expected = "{{ item.item.sha256 }}".ToUpper()
+
+    if ($expected -and $actual -ne $expected) {
+      Write-Error "SHA256 verification failed."
+      exit 1
+    }
+
+    Write-Output "SHA256 verification passed."
+  loop: "{{ software_status.results }}"
+  when:
+    - item.item.method == "copy"
+    - "'Installed'" not in item.stdout
+
+- name: Install copied software
+  ansible.windows.win_command: "{{ item.item.install_cmd }}"
+  loop: "{{ software_status.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  when:
+    - item.item.method == "copy"
+    - "'Installed'" not in item.stdout
+
+- name: Install software directly from network share
+  ansible.windows.win_command: "{{ item.item.install_cmd }}"
+  loop: "{{ software_status.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  when:
+    - item.item.method == "share"
+    - "'Installed'" not in item.stdout
+
+###############################################################################
+# PART 4 - VERIFY, CLEANUP & DISCONNECT
+###############################################################################
+
+- name: Verify software installation
+  ansible.windows.win_shell: |
+    $app = Get-ItemProperty `
+      HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*,`
+      HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* `
+      -ErrorAction SilentlyContinue |
+      Where-Object {
+        $_.DisplayName -like "*{{ item.item.display_name }}*"
+      }
+
+    if ($app) {
+      Write-Output "Installed"
+    }
+    else {
+      Write-Error "Installation verification failed."
+      exit 1
+    }
+  loop: "{{ software_status.results }}"
+  when:
+    - "'Installed'" not in item.stdout
+
+- name: Delete copied installers
+  ansible.windows.win_file:
+    path: "{{ destination }}\{{ item.item.file }}"
+    state: absent
+  loop: "{{ software_status.results }}"
+  when:
+    - item.item.method == "copy"
+    - "'Installed'" not in item.stdout
+
+- name: Disconnect network share
+  ansible.windows.win_command: >
+    cmd /c net use \\10.64.105.105\mostafa /delete /y
+  failed_when: false
+  changed_when: false
