@@ -28,18 +28,29 @@
   loop: "{{ software_list }}"
   register: software_status
   changed_when: false
+
 ###############################################################################
 # PART 2 - DISK SPACE CHECK
 ###############################################################################
 
-- name: Calculate installer sizes
+- name: Calculate total copy size
   ansible.windows.win_shell: |
+    $size = 0
+
     if (Test-Path "{{ item.item.src }}\{{ item.item.file }}") {
-      (Get-Item "{{ item.item.src }}\{{ item.item.file }}").Length
+
+      $item = Get-Item "{{ item.item.src }}\{{ item.item.file }}"
+
+      if ($item.PSIsContainer) {
+        $size = (Get-ChildItem $item.FullName -Recurse -File |
+                 Measure-Object Length -Sum).Sum
+      }
+      else {
+        $size = $item.Length
+      }
     }
-    else {
-      0
-    }
+
+    Write-Output $size
   loop: "{{ software_status.results }}"
   when:
     - item.item.method == "copy"
@@ -58,7 +69,7 @@
         | sum
       }}
 
-- name: Get C: drive free space
+- name: Get C Drive Free Space
   ansible.windows.win_shell: |
     (Get-PSDrive C).Free
   register: disk_free
@@ -68,17 +79,20 @@
   ansible.builtin.fail:
     msg: |
       Required Space : {{ required_bytes }} Bytes
-      Available Space: {{ disk_free.stdout | trim }} Bytes
+      Free Space     : {{ disk_free.stdout | trim }} Bytes
       Deployment aborted due to insufficient free disk space.
   when:
     - required_bytes | int > ((disk_free.stdout | trim | int) - 2147483648)
+
+
 ###############################################################################
 # PART 3 - COPY, VERIFY & INSTALL
 ###############################################################################
 
-- name: Copy software using Robocopy
+- name: Copy software files using Robocopy
   ansible.windows.win_command: >
-    robocopy "{{ item.item.src }}"
+    robocopy
+    "{{ item.item.src }}"
     "{{ destination }}"
     "{{ item.item.file }}"
     /MT:16 /Z /R:3 /W:5 /NP
@@ -87,9 +101,28 @@
     label: "{{ item.item.name }}"
   when:
     - item.item.method == "copy"
+    - item.item.type == "file"
     - "'Installed'" not in item.stdout
-  register: robocopy_result
-  failed_when: robocopy_result.rc > 7
+  register: robocopy_file_result
+  failed_when: robocopy_file_result.rc > 7
+
+
+- name: Copy software folders with subfolders using Robocopy
+  ansible.windows.win_command: >
+    robocopy
+    "{{ item.item.src }}\{{ item.item.file }}"
+    "{{ destination }}\{{ item.item.file }}"
+    /E /MT:16 /Z /R:3 /W:5 /NP
+  loop: "{{ software_status.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  when:
+    - item.item.method == "copy"
+    - item.item.type == "folder"
+    - "'Installed'" not in item.stdout
+  register: robocopy_folder_result
+  failed_when: robocopy_folder_result.rc > 7
+
 
 - name: Verify copied installer exists
   ansible.windows.win_stat:
@@ -100,13 +133,15 @@
     - "'Installed'" not in item.stdout
   register: copied_files
 
-- name: Ensure installer was copied successfully
+
+- name: Fail if copied file or folder does not exist
   ansible.builtin.fail:
-    msg: "Failed to copy {{ item.item.file }}."
+    msg: "Copy failed: {{ item.item.file }}"
   loop: "{{ copied_files.results }}"
   when: not item.stat.exists
 
-- name: Verify installer SHA256 checksum
+
+- name: Verify SHA256 checksum
   ansible.windows.win_shell: |
     $actual = (Get-FileHash "{{ destination }}\{{ item.item.file }}" -Algorithm SHA256).Hash.ToUpper()
     $expected = "{{ item.item.sha256 }}".ToUpper()
@@ -116,11 +151,13 @@
       exit 1
     }
 
-    Write-Output "SHA256 verification passed."
+    Write-Output "SHA256 OK"
   loop: "{{ software_status.results }}"
   when:
     - item.item.method == "copy"
+    - item.item.type == "file"
     - "'Installed'" not in item.stdout
+
 
 - name: Install copied software
   ansible.windows.win_command: "{{ item.item.install_cmd }}"
@@ -130,6 +167,7 @@
   when:
     - item.item.method == "copy"
     - "'Installed'" not in item.stdout
+
 
 - name: Install software directly from network share
   ansible.windows.win_command: "{{ item.item.install_cmd }}"
@@ -158,14 +196,16 @@
       Write-Output "Installed"
     }
     else {
-      Write-Error "Installation verification failed."
+      Write-Error "Installation failed"
       exit 1
     }
+
   loop: "{{ software_status.results }}"
   when:
     - "'Installed'" not in item.stdout
 
-- name: Delete copied installers
+
+- name: Delete copied installers and folders
   ansible.windows.win_file:
     path: "{{ destination }}\{{ item.item.file }}"
     state: absent
@@ -174,8 +214,63 @@
     - item.item.method == "copy"
     - "'Installed'" not in item.stdout
 
-- name: Disconnect network share
+
+- name: Disconnect Network Share
   ansible.windows.win_command: >
     cmd /c net use \\10.64.105.105\mostafa /delete /y
   failed_when: false
   changed_when: false
+
+###############################################################################
+# PART 5 - DEPLOYMENT SUMMARY
+###############################################################################
+
+- name: Generate Deployment Summary
+  ansible.builtin.debug:
+    msg:
+      - "=========================================="
+      - " Deployment Summary"
+      - "=========================================="
+      - "Computer Name     : {{ ansible_hostname }}"
+      - "Deployment Status : SUCCESS"
+      - "Temp Location     : {{ destination }}"
+      - "Required Space    : {{ required_bytes }} Bytes"
+      - "Free Space        : {{ disk_free.stdout | trim }} Bytes"
+      - "=========================================="
+
+###############################################################################
+# PART 6 - DEPLOYMENT LOG
+###############################################################################
+
+- name: Create Deployment Log
+  ansible.windows.win_shell: |
+    $LogPath = "{{ destination }}\Deployment.log"
+
+    $LogContent = @"
+==========================================
+ Software Deployment Log
+==========================================
+Computer Name     : $env:COMPUTERNAME
+Deployment Date   : $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+Deployment Status : SUCCESS
+
+Destination       : {{ destination }}
+Required Space    : {{ required_bytes }} Bytes
+Free Space        : {{ disk_free.stdout | trim }} Bytes
+
+Installed Software:
+{% for item in software_status.results %}
+- {{ item.item.name }}
+{% endfor %}
+
+==========================================
+"@
+
+    $LogContent | Out-File -FilePath $LogPath -Encoding UTF8
+
+  register: deployment_log
+
+
+- name: Display Log Location
+  ansible.builtin.debug:
+    msg: "Deployment log created at {{ destination }}\Deployment.log"
