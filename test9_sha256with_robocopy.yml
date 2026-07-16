@@ -2,6 +2,10 @@
 # PART 1 - PRE-CHECK
 ###############################################################################
 
+- name: Copy and install multiple software
+  hosts: windows_10
+  gather_facts: false
+
 - name: Create Temp Folder
   ansible.windows.win_file:
     path: "{{ destination }}"
