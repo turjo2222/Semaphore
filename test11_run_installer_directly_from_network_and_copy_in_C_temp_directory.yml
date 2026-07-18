@@ -1,8 +1,10 @@
 ---
 # Playbook: Copy, install, and clean up multiple software packages
 # Skip software that is already installed.
-# copy    = copy full folder then install
-# network = run installer directly from network
+#
+# install_type:
+#   copy    = Copy full folder, install, then delete copied folder
+#   network = Run installer directly from network
 
 - name: Copy and install multiple software
   hosts: windows_10
@@ -36,8 +38,8 @@
         install_type: copy
         folder_name: 'Office365'
         src: '\\10.64.105.105\mostafa\Office365'
-        file: 'setup.exe'
-        install_cmd: 'C:\Temp\Office365\setup.exe /configure C:\Temp\Office365\configuration.xml'
+        file: 'WXP.bat'
+        install_cmd: 'WXP.bat'
 
 
       - name: Adobe Reader
@@ -50,6 +52,7 @@
 
 
   tasks:
+
 
     # Create temporary folder
     - name: Create destination folder
@@ -87,7 +90,7 @@
 
 
 
-    # Copy only copy-type software folders
+    # Copy full software folders
     - name: Copy software folders using Robocopy
       ansible.windows.win_command: >
         robocopy "{{ item.item.src }}" "{{ destination }}\{{ item.item.folder_name }}" * /E /R:5 /W:10 /MT:8
@@ -107,7 +110,7 @@
 
 
 
-    # Verify copied installer
+    # Verify copied installer file
     - name: Verify installer exists
       ansible.windows.win_stat:
         path: "{{ destination }}\{{ item.item.folder_name }}\{{ item.item.file }}"
@@ -128,6 +131,8 @@
     # Install copied software
     - name: Install copied software
       ansible.windows.win_command: "{{ item.item.item.install_cmd }}"
+      args:
+        chdir: "{{ destination }}\{{ item.item.item.folder_name }}"
 
       loop: "{{ file_check.results }}"
 
@@ -139,7 +144,7 @@
 
 
 
-    # Install network software
+    # Install software directly from network
     - name: Install network software
       ansible.windows.win_command: "{{ item.item.install_cmd }}"
 
@@ -154,7 +159,7 @@
 
 
 
-    # Remove copied folders
+    # Remove copied folders after installation
     - name: Remove copied software folders
       ansible.windows.win_file:
         path: "{{ destination }}\{{ item.item.item.folder_name }}"
