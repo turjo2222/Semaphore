@@ -1,0 +1,177 @@
+---
+# Playbook: Copy, install, and clean up multiple software packages
+# Skip software that is already installed.
+# copy    = copy full folder then install
+# network = run installer directly from network
+
+- name: Copy and install multiple software
+  hosts: windows_10
+  gather_facts: false
+
+  vars:
+    destination: 'C:\Temp'
+
+    software_list:
+
+      - name: Avro Keyboard
+        display_name: 'Avro Keyboard'
+        install_type: copy
+        folder_name: 'Bangla'
+        src: '\\10.64.105.105\mostafa\Bangla'
+        file: 'setup_avrokeyboard_5.6.0.exe'
+        install_cmd: 'C:\Temp\Bangla\setup_avrokeyboard_5.6.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
+
+
+      - name: WinRAR
+        display_name: 'WinRAR'
+        install_type: copy
+        folder_name: 'WinRAR'
+        src: '\\10.64.105.105\mostafa\WinRAR'
+        file: 'winrar-x64.exe'
+        install_cmd: 'C:\Temp\WinRAR\winrar-x64.exe /S'
+
+
+      - name: Office 365
+        display_name: 'Microsoft Office'
+        install_type: copy
+        folder_name: 'Office365'
+        src: '\\10.64.105.105\mostafa\Office365'
+        file: 'setup.exe'
+        install_cmd: 'C:\Temp\Office365\setup.exe /configure C:\Temp\Office365\configuration.xml'
+
+
+      - name: Adobe Reader
+        display_name: 'Adobe Reader'
+        install_type: network
+        folder_name: 'Adobe'
+        src: '\\10.64.105.105\mostafa\Adobe'
+        file: 'AdbeRdr11010_en_US.exe'
+        install_cmd: '\\10.64.105.105\mostafa\Adobe\AdbeRdr11010_en_US.exe /sAll /rs /msi EULA_ACCEPT=YES'
+
+
+  tasks:
+
+    # Create temporary folder
+    - name: Create destination folder
+      ansible.windows.win_file:
+        path: "{{ destination }}"
+        state: directory
+
+
+    # Check installed software
+    - name: Check installed software
+      ansible.windows.win_shell: |
+        $app = Get-ItemProperty `
+          HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*, `
+          HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* `
+          -ErrorAction SilentlyContinue |
+          Where-Object { $_.DisplayName -like "*{{ item.display_name }}*" }
+
+        if ($app) {
+          Write-Output "Installed"
+        }
+
+      loop: "{{ software_list }}"
+      loop_control:
+        label: "{{ item.name }}"
+      register: software_status
+      changed_when: false
+
+
+
+    # Connect network share
+    - name: Connect network share
+      ansible.windows.win_command: >
+        cmd /c "net use \\10.64.105.105\mostafa /user:Guest """
+      changed_when: false
+
+
+
+    # Copy only copy-type software folders
+    - name: Copy software folders using Robocopy
+      ansible.windows.win_command: >
+        robocopy "{{ item.item.src }}" "{{ destination }}\{{ item.item.folder_name }}" * /E /R:5 /W:10 /MT:8
+
+      loop: "{{ software_status.results }}"
+
+      loop_control:
+        label: "{{ item.item.name }}"
+
+      when:
+        - "'Installed' not in item.stdout"
+        - item.item.install_type == "copy"
+
+      register: copy_result
+
+      failed_when: copy_result.rc > 7
+
+
+
+    # Verify copied installer
+    - name: Verify installer exists
+      ansible.windows.win_stat:
+        path: "{{ destination }}\{{ item.item.folder_name }}\{{ item.item.file }}"
+
+      loop: "{{ software_status.results }}"
+
+      loop_control:
+        label: "{{ item.item.name }}"
+
+      register: file_check
+
+      when:
+        - "'Installed' not in item.stdout"
+        - item.item.install_type == "copy"
+
+
+
+    # Install copied software
+    - name: Install copied software
+      ansible.windows.win_command: "{{ item.item.item.install_cmd }}"
+
+      loop: "{{ file_check.results }}"
+
+      loop_control:
+        label: "{{ item.item.item.name }}"
+
+      when:
+        - item.stat.exists
+
+
+
+    # Install network software
+    - name: Install network software
+      ansible.windows.win_command: "{{ item.item.install_cmd }}"
+
+      loop: "{{ software_status.results }}"
+
+      loop_control:
+        label: "{{ item.item.name }}"
+
+      when:
+        - "'Installed' not in item.stdout"
+        - item.item.install_type == "network"
+
+
+
+    # Remove copied folders
+    - name: Remove copied software folders
+      ansible.windows.win_file:
+        path: "{{ destination }}\{{ item.item.item.folder_name }}"
+        state: absent
+
+      loop: "{{ file_check.results }}"
+
+      loop_control:
+        label: "{{ item.item.item.name }}"
+
+      when:
+        - item.stat.exists
+
+
+
+    # Disconnect network share
+    - name: Disconnect network share
+      ansible.windows.win_command: >
+        cmd /c "net use \\10.64.105.105\mostafa /delete /y"
+      changed_when: false
